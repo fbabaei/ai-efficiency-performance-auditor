@@ -18,6 +18,7 @@ Focus on:
 - Token growth from repeated context, tool responses, and retained failure history.
 
 Use existing runtime traces only when their sanitization is safely established under the methodology's eligibility rules. This prompt does not confirm that any trace is sanitized. Do not inspect event payloads to establish sanitization. If safe eligibility cannot be established, skip the artifact and identify the missing evidence.
+For existing user-named traces, allow the methodology's one exact-path sanitization preflight question before skipping; negative, ambiguous or absent replies never authorize payload reads.
 
 Separate observed behavior, statically demonstrated behavior, control/instrumentation gaps, and unverified optimization hypotheses. Historical reports are secondary evidence; verify that an issue is still present before presenting it as current.
 
@@ -28,9 +29,11 @@ Keep logical tool calls, execution attempts, downstream requests, logical model 
 Build separate baseline/candidate call budgets for applicable scenarios: normal success, one transient tool failure, one transient model failure, timeout after a possible side effect, and exhausted retries. Mark unsupported scenarios N/A and unknown values unknown; never invent measurements or savings.
 
 Rank only demonstrated optimizations by confidence, supported impact, risk, and effort. Keep unverified model substitutions, lower reasoning effort, quality-dependent context reductions, and speculative architectural changes in the validation plan.
+Distinguish scenario-local from workload-weighted impact; without measured branch frequencies, rank within each scenario and leave traffic impact unknown.
 
 Preserve necessary retries, authorization checks, evidence validation, freshness guarantees, and failure notifications. Any proposed reuse must preserve identity and trust boundaries. For side-effecting calls, account for idempotency and uncertain completion before recommending a retry or deduplication strategy.
 
 Save the complete detailed six-section audit as reports/<application>-audit-detailed-report.md and a new Executive Summary as reports/<application>-audit-executive-summary.md. Never overwrite existing files; use the first unused numeric suffix for each occupied path. Include safeguards and a matched baseline/candidate validation plan covering output quality, recovery success, side-effect correctness, call units, tokens, and latency. Recommend experiments; do not run them. If evidence is insufficient, identify the smallest sanitized export needed to resolve the highest-value uncertainty.
+Stop states (`not auditable` or `scope selection required`) create neither report. Validate complete drafts before writing, probe at most ten paths per report, and create each file once. Partial/invalid writes remain untouched; return corrected content in Chat without alternate-path retries.
 
 Read both saved files back, verify all six sections and evidence citations in the detailed report, and check the Executive Summary's 60-line and 600-word limits (these limits do not apply to the detailed report). Link the verified detailed report from the summary and provide links to both files. Disclose save or verification failures and return any unsaved report in Chat. After successful summary verification, ask: "Open the Executive Summary in Markdown preview?" Open only that new summary after an explicit Yes; otherwise do not open preview.

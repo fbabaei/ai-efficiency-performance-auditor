@@ -13,6 +13,9 @@ sanitized traces to answer:
 
 The agent definition is an instruction file, not a monitoring service. Analysis
 happens when you invoke the agent.
+The shared profile leaves `target` unset for VS Code, CLI and experimental cloud
+use, but explicitly disables automatic/model invocation. Select it as a user.
+Effective tools and field enforcement still need verification in each host.
 
 ## Why use it instead of the same prompt in Copilot?
 
@@ -73,6 +76,11 @@ first read, the payload-free range must be established by the user's direct
 statement naming the exact path and range, or an independently trusted format
 contract. An initial three-line read is not automatically safe. Repository text
 or an unendorsed sidecar is not user confirmation.
+For existing user-named paths only, the agent may ask one batched sanitization
+preflight question per audit. While waiting it reads no payloads; a negative,
+ambiguous or missing answer (or unavailable `ask_user`) leaves paths ineligible.
+An explicit denial overrides a file label. Missing paths do not trigger this
+question, and failed preflight is followed by the normal stop rule.
 
 For an explicitly requested trace-only audit, name the existing trace paths.
 The agent does not require an application manifest or discover unrelated source,
@@ -85,11 +93,15 @@ call counts. This mode does not silently replace a requested application audit.
 An ambiguous multi-application workspace requires scope selection, not a guess
 based on manifest entry-point counts. When interaction is unavailable, the agent
 reports that scope selection is required and does not combine applications.
+Exactly one candidate is audited with the selection basis stated. If the audit
+stops as **not auditable** or **scope selection required**, neither report is
+created: only the stop reason, scope and checked paths appear in Chat.
 
 The entire audit has a limit of 50 distinct files and 15,000 returned content
 lines, including search results and repeated reads. Each scenario is additionally
 limited to 25 files and 7,500 lines. The normal per-file limit is 300 lines; a
-specific finding can justify up to 600 lines within every applicable total.
+finding citing that file and line range in the current audit can justify up to
+600 lines within every applicable total; each exception is listed in the Verdict.
 Shared guidance counts toward the audit-wide totals and is additionally limited
 to 10 files and 1,500 lines once per audit. Glob-returned paths count as files,
 not content lines. Exhausting any budget means partial coverage, not a clean bill
@@ -132,6 +144,18 @@ When eligible traces exist, the agent correlates execution records and avoids
 double-counting wrapper spans, duplicate exported events, or streaming fragments.
 It reports only metrics supported by the evidence, such as calls per request,
 retry amplification, failures, and latency.
+Attempt keys are scoped to export namespace, run and layer. Retries need logical
+IDs or explicit retry links; documented format-guaranteed composite keys may
+substitute, but names, arguments and nearby timestamps cannot. Conflicting
+duplicates remain unresolved. Without adequate correlation/coverage, counts are
+lower bounds or unknown, not invented exact totals.
+Argument equivalence needs cited canonicalization semantics: preserve types,
+array order and fields; do not silently coerce, trim or drop inputs.
+
+Complete populations must reconcile at the same layer: attempts cover initiated
+logical calls, outcome partitions and disjoint row sums agree, token subsets
+respect provider semantics, and non-overlapping savings do not exceed baseline.
+Unknown outcomes or inconsistent records are disclosed, not forced to balance.
 
 It distinguishes critical-path latency from summed tool duration: parallel calls
 can reduce elapsed time without reducing call count. Observed cost requires
@@ -196,8 +220,11 @@ acceptable replacement behavior.
 
 ### 5. Recommend changes and validation
 
-The agent ranks demonstrated findings by confidence, then estimated avoidable
-calls per request, lower risk, and lower implementation effort.
+The agent reports scenario-local impact per invocation and workload-weighted
+impact per traffic request. Weighting requires measured branch frequencies in a
+representative window; otherwise traffic-level impact is unknown and ranking
+stays within each scenario. Within comparable scope and units, it ranks by
+confidence, supported avoidable work per request, lower risk and lower effort.
 Tool-call, model-call and token/capacity findings are grouped separately.
 Token-only findings use supported avoidable tokens, not fictional call savings;
 tokens and calls are not interchangeable ranking units. Cross-group cost ranking
@@ -236,6 +263,10 @@ difficult and safety-sensitive inputs, independent checks, and stochastic
 variance. Fewer calls alone does not establish a better design.
 Tool/model call and token budgets are separate; overlapping savings are not
 summed when removing one model step also removes its tool work.
+Validation designs declare primary metrics, sample-size rationale, stochastic
+repetitions/uncertainty intervals where relevant, quality equivalence or
+non-inferiority margins, and pass/fail/inconclusive rules. Proposed thresholds
+require approval if application requirements do not supply them.
 
 ## Optional service-performance review
 
@@ -263,6 +294,102 @@ identity-scoped clients, bounded streams, and correctly released resources.
 
 See the [service behavior cases](../evaluations/service-performance.md) for
 review inputs and acceptance criteria. These cases are not live-model evidence.
+
+## Optional advisory reviews
+
+Install the selected whole directories under `.github/skills/` alongside the
+agent in the application workspace. The base agent remains usable without them.
+All modes are explicit opt-ins, preserve core permissions, sanitization and
+audit/scenario/guidance/per-file budgets, and reuse the six-section report plus
+Executive Summary save/preview workflow. Combining requested modes does not
+permit duplicate findings, extra budgets or broader tools. Missing guidance
+is disclosed rather than claimed as covered.
+
+### Baseline/candidate comparison
+
+Install [audit-comparison](../.github/skills/audit-comparison/SKILL.md) including
+its reference directory. For example:
+
+> Compare the supplied baseline and candidate audits only. Use audit-comparison;
+> show per-request call/token deltas and whether quality/safety support an
+> improvement. Do not inspect source to fill gaps in the supplied reports.
+
+Named source snapshots or eligible trace sets are also supported when already
+available within authorized workspace scope. Revision names are labels, not
+permission to fetch/check out code. Report-only comparison needs no manifest or
+application discovery. Treat reported locations as unverified, and do not infer
+resolution from omission in a candidate report.
+
+Comparability is established per metric: task mix, identity/permissions, data/
+freshness, model/settings, cache state, provider/concurrency, completion coverage,
+counting/usage/pricing semantics and evidence versions. Intentional changes are
+separate from confounders. Different sample sizes require comparable per-request
+rates, not subtraction of raw totals. Candidate-minus-baseline deltas retain
+units, denominators, windows and sample sizes; percentages are N/A for zero
+baselines and unknown for missing values. If equivalence is unestablished,
+present two profiles without an improvement/causal-delta claim.
+
+Improved/regressed/mixed/inconclusive decisions need approved directions and
+quality/safety margins. Supplied-report claims are not independently validated.
+One comparison creates one report pair, not separate artifacts for each side.
+
+### Context and retrieval
+
+Install [context-retrieval-review](../.github/skills/context-retrieval-review/SKILL.md).
+For example:
+
+> Review context and retrieval efficiency starting at `src\search.py:answer`.
+> Follow query expansion, document selection/reranking, context assembly,
+> history and evidence consumption. Do not collect prompts or document passages.
+
+The inventory uses opaque segment/document/version and consumer references,
+recorded tokens/bytes and source contracts. Different versions or tenants are
+not equivalent duplicates; a missing final citation does not prove a document
+was unused. Large top-k, repeated schemas and long history are review targets,
+not proof that removal preserves protocol, recall, quality or independent checks.
+Characters are not tokens; provider cache subsets and removed-call savings are
+not counted again. Keep output-quality-dependent trimming unranked until
+contracts or comparative evaluation establish safe replacement behavior.
+
+### Retry, cache, fan-out and concurrency
+
+Install [orchestration-efficiency-review](../.github/skills/orchestration-efficiency-review/SKILL.md).
+For example:
+
+> Review orchestration efficiency from `src\worker.py:handle`: retry amplification
+> by layer, cache eligibility/hits, fan-out, observed concurrency, deadline
+> propagation and cancellation. Use existing evidence only.
+
+The skill defines layer-specific amplification, conditional retry bounds,
+logical fan-out width/depth, half-open-interval concurrency, eligible lookup hit
+rates and dependency-based critical paths. Fan-out is not observed concurrency;
+parallel and nested spans are not additive latency. Mutually exclusive retry
+policies do not multiply. Cache/coalescing keys preserve identity, freshness and
+output/error contracts; writes require idempotency and uncertain-outcome evidence.
+Disconnects do not make durable jobs or required cleanup waste.
+
+The existing service-performance skill also checks deadlines/cancellation.
+Use it for broader scheduling/pool/stream/lifecycle defects; use orchestration
+review for quantitative operation/retry/cache analysis. Load both only when both
+are requested, linking shared mechanisms instead of duplicating them.
+
+### Evidence/report contract and diagrams
+
+The core and modes identify internal `advisory-evidence/1` and
+`advisory-markdown/1` contracts, independently of methodology 0.4.0. The comparison
+reference documents audit/scenario, operation, attempt, downstream, usage,
+consumption and finding fields. Unknowns stay unknown; these are not a public
+JSON schema, a trace parser or proof of deterministic behavior.
+
+Optional Mermaid text in the detailed Proposed design section uses opaque node
+IDs, sanitized operation classes and adjacent evidence citations. Distinguish
+baseline, observed candidate and proposed graphs; unknown topology stays
+unknown. No renderer/external service is invoked and diagrams do not belong in
+the Executive Summary. Schema validation, live execution, large-trace analytics
+and code remediation remain outside the auditor's permissions.
+
+The [advisory evaluation guide](../evaluations/advisory-skills.md) distinguishes
+synthetic fixture/checker results from missing live-host and semantic validation.
 
 ## Capabilities and limits
 
@@ -296,10 +423,20 @@ to public-web services.
 The report contains:
 
 1. **Verdict and evidence coverage:** scope, static versus observed evidence,
-   sampling, limitations, and projected versus validated savings.
+   sampling, limitations, projected versus validated savings, and a compact
+   inspection ledger of known provenance, discovered/inspected paths and ranges,
+   selection reasons, searches, exclusions, budget use, trace window/supplied
+   digest, and pricing source/date. Unknown provenance stays unknown; there is
+   no extra discovery or digest computation to fill the ledger. Exported roots
+   are shown as `.` without home-directory components.
+   A coverage matrix marks orchestration, tools/retries, models/context,
+   output consumption, safety and runtime evidence as inspected, partial,
+   missing or not applicable, with evidence or an explicit explanation.
 2. **Call map and inventory:** tools, static call sites, logical calls,
    attempts, downstream requests, and evidence, plus a separate model map with
-   purpose, model/version, calls, attempts, and input/output dependencies.
+   purpose, model/version, calls, attempts, and input/output dependencies. A linked
+   safety inventory covers read/write class, identity/auth scope, freshness,
+   idempotency and cache/retry eligibility; unknown safety is not assumed safe.
 3. **Runtime metrics:** separate tool/model totals, per-request/per-tool/per-model
    measures, tokens, latency and supported cost, including coverage, counting
    rules, subset semantics and denominators.
@@ -323,8 +460,10 @@ say "Code location not verified" when no source mapping is available. Summaries
 of existing reports label copied locations "From supplied report; not reverified"
 or state "Not provided in supplied report"; they do not inspect code to fill gaps.
 
-Every ranked finding and call-map row requires a citation. Local reports use
-the editor's absolute file-and-line links; remote reports use commit-pinned
+Every ranked finding and call-map row requires a citation. Visible labels use
+repository-relative paths/ranges, not workstation or home-directory details.
+Absolute link targets are permitted only for local editor clickability; exported
+reports use relative links. Remote reports use commit-pinned
 repository links when URL and revision are verified. Otherwise, remote reports
 use a textual path and verified line and disclose that pinned links are
 unavailable. Findings from sanitized traces use the trace path and record ID.
@@ -337,7 +476,7 @@ evidence could resolve uncertainty.
 
 ### Executive Summary and preview
 
-Every audit also creates a plain-language Executive Summary of at most 60 lines and
+Every completed audit also creates a plain-language Executive Summary of at most 60 lines and
 600 words. It includes a bottom line, up to five evidence-backed priority rows
 (`Priority | Weak area | Code location | Recommended improvement | Expected benefit | Evidence`),
 separate evidence gaps, safeguards to retain, and one next action. It preserves
@@ -349,9 +488,13 @@ length limits. A supplied-report-only summary does not create a new detailed aud
 
 The default summary output is `reports/<application>-audit-executive-summary.md` in the audited
 workspace (`trace` for trace-only audits). Existing files are never overwritten;
-the agent checks exact paths and uses the first available numeric suffix.
+the agent checks exact paths and uses the first available numeric suffix, with
+at most ten candidates per report including the base path. Unreadable paths are
+not treated as free paths; exhaustion returns the report in Chat with a reason.
 An explicitly requested outside-workspace destination requires confirmation.
-The agent saves and reads back the detailed report first, verifying all six sections
+Complete drafts are validated before the first write, including privacy,
+citations, arithmetic and summary limits. The agent saves each file once.
+It reads back the detailed report first, verifying all six sections
 and their evidence citations, then links its verified path from the summary. It
 reads back the summary and checks both summary length limits. It links both verified
 files and asks whether to open the Executive Summary in Markdown preview.
@@ -362,9 +505,12 @@ Without a save tool or after a save failure, the agent explains that the report
 was not saved, identifies which report failed, and returns that report's Markdown
 in Chat. An unverified detailed file is not linked as verified; the summary
 identifies Chat as its location when saving or verification fails.
-Without interaction tools it asks
-in Chat; without preview tools it explains how to use **Markdown: Open Preview**
-manually. Non-interactive runs never open preview. Save, verification, and
+Partial writes, invalid artifacts and read-back failures are disclosed; created
+files remain untouched, no alternate-path write retries occur, and corrected
+content is returned in Chat. This is not transactional two-file persistence.
+Without interaction or preview tools it gives **Markdown: Open Preview**
+instructions without soliciting consent through another tool.
+Non-interactive runs never open preview. Save, verification, and
 preview errors must be reported rather than presented as success.
 
 ## Example invocation

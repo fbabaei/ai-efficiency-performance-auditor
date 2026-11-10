@@ -116,6 +116,19 @@ def _has_both_sites(text: str) -> bool:
     return covered == {10, 11} and _has_identifier(text, "audit_fixture")
 
 
+def check_summary(summary: str) -> tuple[list[list[str]], list[str]]:
+    errors = []
+    if len(summary.splitlines()) > 60 or len(summary.split()) > 600:
+        errors.append("summary exceeds 60 lines or 600 whitespace-delimited words")
+    if not re.search(r"(?m)^#{1,6}\s+.*Executive Summary", summary):
+        errors.append("summary needs an Executive Summary heading")
+    if re.search(r"(?m)^\s*(?:`{3,}|~{3,})", summary):
+        errors.append("summary must not contain fenced code excerpts")
+    rows, table_errors = _priority_rows(summary)
+    errors.extend(table_errors)
+    return rows, errors
+
+
 def check_reporting(report: object) -> list[str]:
     if not isinstance(report, dict):
         return ["report must be a JSON object"]
@@ -128,15 +141,7 @@ def check_reporting(report: object) -> list[str]:
         return ["detailed_report must contain the captured Markdown"]
     if not isinstance(summary, str) or not summary.strip():
         return ["executive_summary must contain the captured Markdown"]
-    errors = []
-    if len(summary.splitlines()) > 60 or len(summary.split()) > 600:
-        errors.append("summary exceeds 60 lines or 600 whitespace-delimited words")
-    if not re.search(r"(?m)^#{1,6}\s+.*Executive Summary", summary):
-        errors.append("summary needs an Executive Summary heading")
-    if re.search(r"(?m)^\s*(?:`{3,}|~{3,})", summary):
-        errors.append("summary must not contain fenced code excerpts")
-    rows, table_errors = _priority_rows(summary)
-    errors.extend(table_errors)
+    rows, errors = check_summary(summary)
     if case == "trace-unmapped":
         if rows:
             errors.append("trace-only avoidability is unknown; no ranked rows are allowed")

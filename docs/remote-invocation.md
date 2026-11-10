@@ -41,6 +41,13 @@ chosen host; organization-level agent distribution alone does not install it.
 Request service-performance mode explicitly with a source entry point.
 It needs no command, delegation, or external-service tools.
 
+Optional comparison, context/retrieval and orchestration reviews likewise need
+their selected whole skill directories installed in the application workspace;
+copy `references/` with audit-comparison. Organization agent distribution alone
+does not install these files. See the [advisory modes](agent-guide.md#optional-advisory-reviews).
+They retain the same permissions and do not fetch historical revisions or run
+benchmarks. Host skill discovery still requires verification.
+
 References:
 - [GitHub organization setup](https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-for-organization/prepare-for-custom-agents)
 - [VS Code custom agents](https://code.visualstudio.com/docs/agent-customization/custom-agents)
@@ -66,8 +73,8 @@ copilot --agent ai-efficiency-auditor
 Alternatively, start `copilot` and use `/agent` to select the auditor. Verify the
 selected agent is **AI Efficiency Auditor** before submitting your audit
 request. Do not approve execution, web, or delegation tools for this role.
-For interactive report saving, approve only creation of a new Markdown
-Executive Summary, never application edits or overwrites. Preview is optional, local, and
+For interactive report saving, approve only creation of new Markdown detailed
+audits and Executive Summaries, never application edits or overwrites. Preview is optional, local, and
 requires explicit consent; unsupported hosts provide manual instructions.
 CLI 1.0.105 warns that it ignores `argument-hint` and `agents`. Retain those fields
 for supporting editors, but do not rely on `agents: []` to disable CLI delegation.
@@ -97,6 +104,9 @@ Before even the first header read, establish a payload-free range from the user'
 direct statement naming the exact path and range, or an independently trusted
 format contract. Never assume the first three lines are metadata. If the boundary
 is unknown, skip the artifact unless exact-path sanitization is directly confirmed.
+For an existing user-named artifact, one batched exact-path sanitization
+preflight may precede skipping. No reply, denial, ambiguity or missing question
+tool leaves the artifact ineligible; there is no speculative payload/header read.
 
 The latest restricted 0.4.0 captures pass all 20 synthetic application cases, the
 separate trace-only scenario, and session scope checks after checker-only pattern
@@ -150,6 +160,13 @@ GitHub documents selecting custom agents in cloud-agent sessions and issue
 assignment. The definition must be available to the target repository through
 repository or organization configuration. Its presence in this distribution
 repository does not authorize or enable audits of arbitrary repositories.
+
+The shared profile intentionally leaves `target` unset and sets
+`user-invocable: true` and `disable-model-invocation: true`: select the auditor
+explicitly rather than relying on automatic routing or subagent delegation.
+Offline checks keep the body under 29,000 characters and the full definition
+under 30,000 even with CRLF line endings. This addresses the documented cloud
+prompt limit, not runtime/tool compatibility or cloud certification.
 
 The `read` and `search` aliases are documented across clients, but profile
 properties are not identical: for example, cloud sessions ignore `argument-hint`.

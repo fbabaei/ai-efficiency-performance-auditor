@@ -2,6 +2,54 @@
 
 ## Current candidate: 0.4.0
 
+### Advisory capability validation scope
+
+Three optional skills add baseline/candidate comparison, context/retrieval review,
+and formal retry/cache/fan-out/concurrency analysis. The service skill additionally
+covers deadlines and cancellation obligations. Packaging/contract tests verify
+explicit loading, shared boundaries, contract identifiers and false-positive
+guards. The [advisory fixtures and checker](../evaluations/advisory-skills.md)
+exercise selected companion classifications, arithmetic and unknowns using
+synthetic positive/negative inputs; they do not establish actual model behavior,
+quality preservation or cross-host skill discovery.
+
+No new live advisory capture is claimed. Historical call-accounting, trace-only
+and reporting schemas/results remain unchanged; they do not validate these
+extensions. Mermaid output is optional unrendered report text, not a verified
+graph analytics engine. See EXT-01 in the [backlog](v0.5.0-backlog.md).
+
+### Review-driven contract changes
+
+The shared profile now explicitly requires user selection, has a size guard
+below the documented cloud prompt limit, and declares deterministic evidence
+keys, scenario/traffic impact, reconciliation, an inspection ledger and safety
+inventory. It permits one exact-path sanitization preflight and validates drafts
+before bounded, create-once report persistence. Existing discovery budgets remain
+unchanged.
+
+Offline packaging assertions guard these declarations; the expanded
+[conformance matrix](../evaluations/README.md#review-driven-conformance-cases)
+defines host/model acceptance. Neither declaration checks nor historical
+captures below validate these changed behaviors. No new live runs or cross-host
+certification are claimed.
+
+### Executable review-output conformance
+
+The separate [conformance checker](../evaluations/README.md#executable-captured-output-checks)
+adds executable checks for stopped outputs, six-area coverage, report/summary
+shape, same-layer outcomes/request sums, token subsets and missing usage,
+19/20-request percentile eligibility, bounded savings and measured-frequency
+arithmetic. Positive inputs are explicitly synthetic checker oracles. Mutation
+tests reject malformed values, missing fields, wrong sums, fabricated numeric
+unknowns, duplicate identifiers and invalid JSON.
+
+This is output consistency checking, not independent trace aggregation or an
+agent execution. It does not validate file persistence, consent, effective tools,
+source semantics, ranking quality or companion fidelity. The
+[coverage map](../evaluations/README.md#automated-and-manual-coverage) and
+[v0.5.0 backlog](v0.5.0-backlog.md) retain those acceptance gaps. Historical
+schemas/captures are not rewritten to claim new results.
+
 ### Service-performance extension validation scope
 
 The optional service-performance skill and supplied-entry-point-first discovery

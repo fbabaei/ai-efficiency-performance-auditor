@@ -12,6 +12,12 @@ The agent recommends changes and validation experiments, saves a detailed Markdo
 audit and Executive Summary, and asks before opening the summary preview. It does not edit application code,
 run commands, call external services, or replay workloads.
 
+Audits are user-selected (`disable-model-invocation: true`). One shared profile
+retains VS Code and CLI use plus experimental cloud compatibility; `target` is
+intentionally unset. The prompt stays below GitHub's 30,000-character limit.
+Host-specific tools still require effective-tool verification; cloud use is not
+certified by this size check.
+
 ## When it is useful
 
 Use the auditor for **review and prioritization**: finding avoidable AI calls
@@ -31,6 +37,7 @@ correctness or security.
 - [Detailed documentation](docs/agent-guide.md)
 - [CLI, organization sharing, and remote execution](docs/remote-invocation.md)
 - [Synthetic evaluation suite](evaluations/README.md)
+- [Prioritized v0.5.0 acceptance backlog](docs/v0.5.0-backlog.md)
 - [Changes and candidate version](CHANGELOG.md)
 
 ## Install in the repository you want to audit
@@ -55,6 +62,27 @@ is opt-in; ordinary tool/model audits do not load its checklist. It adds async,
 pooling, concurrency, streaming, storage, and cleanup review without granting
 execution permissions or adding another agent.
 
+### Optional advisory capabilities
+
+Copy each desired **whole skill directory**, including any `references/`, into
+the same `.github/skills/` path in the application repository. These skills are
+opt-in and use the auditor's existing read-only evidence/report-only write
+permissions; they do not execute workloads, collect telemetry or modify code.
+
+| Skill | Explicit request |
+|---|---|
+| [audit-comparison](.github/skills/audit-comparison/SKILL.md) | Compare named baseline/candidate reports, existing source snapshots or sanitized trace sets; show matched deltas and quality limitations |
+| [context-retrieval-review](.github/skills/context-retrieval-review/SKILL.md) | Review history/context growth, retrieved-document versions, top-k/reranking, embedding reuse, repeated schemas and unused evidence |
+| [orchestration-efficiency-review](.github/skills/orchestration-efficiency-review/SKILL.md) | Quantify layered retries, fan-out, cache/coalescing eligibility, concurrency, critical paths and cancellation/deadline work |
+
+Select **AI Efficiency Auditor** and name the mode and exact inputs. The agent
+loads only explicitly requested modes, discloses missing skill files and keeps
+their reads within the same exploration budgets. Comparison is advisory:
+confounded inputs become separate profiles, omitted findings are not assumed
+resolved, and fewer calls alone does not establish improved quality or safety.
+See [usage and limitations](docs/agent-guide.md#optional-advisory-reviews) and
+[synthetic acceptance cases](evaluations/advisory-skills.md).
+
 Commit the copied files to your application repository to share the agent with
 that repository's contributors. Opening this distribution repository alone
 does not give the agent access to a separate application's workspace.
@@ -75,6 +103,10 @@ Repository text and unendorsed sidecars do not replace that confirmation.
 Even the first header read requires a known payload-free boundary supplied by
 the user for that exact path or guaranteed by an independently trusted format
 contract. Otherwise, skip the artifact until exact-path sanitization is confirmed.
+For existing user-named traces without eligibility evidence, an interactive host
+may ask one batched sanitization question before skipping them. No payload is
+read while awaiting confirmation; absent, negative or ambiguous replies do not
+authorize access.
 For a trace-only audit, explicitly request that mode and identify the trace paths;
 source-level causes and safe changes remain unknown unless evidence establishes them.
 
@@ -90,6 +122,10 @@ Each audit also produces a plain-language **Executive Summary** (at most 60 line
 benefits, evidence gaps, safeguards, and one next step. By default it is saved
 as `reports/<application>-audit-executive-summary.md` in the audited workspace;
 existing files for either report are preserved by choosing a numeric suffix.
+The agent validates drafts before writing, probes at most ten paths per report,
+and leaves partial or invalid saved files untouched while returning corrections
+in Chat. An audit stopped as **not auditable** or **scope selection required**
+creates neither report; the stop reason and checked paths are returned in Chat.
 Both saved reports are read back and linked, and the summary links to the detailed
 report. The summary length limits do not apply to the detailed report. After saving, the
 agent asks whether to open Markdown preview and waits for an explicit Yes.

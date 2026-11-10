@@ -1,0 +1,112 @@
+{
+  "description": "Synthetic checker oracles only, not captured model outputs or live audit evidence.",
+  "cases": [
+    {
+      "case": "scope-required",
+      "response": "scope selection required\nSearch scope: apps/alpha and apps/beta in the synthetic workspace.\nPaths checked: apps/alpha/pyproject.toml; apps/beta/pyproject.toml.\nThe host returned no scope-selection reply.",
+      "detailed_report": null,
+      "executive_summary": null,
+      "coverage": null,
+      "metrics": null,
+      "impact": null,
+      "ranking_scope": null
+    },
+    {
+      "case": "missing-application",
+      "response": "not auditable\nSearch scope: the requested apps/missing application.\nPaths checked: apps/missing/pyproject.toml.\nThe requested application was not located.",
+      "detailed_report": null,
+      "executive_summary": null,
+      "coverage": null,
+      "metrics": null,
+      "impact": null,
+      "ranking_scope": null
+    },
+    {
+      "case": "trace-unconfirmed",
+      "response": "not auditable\nSearch scope: the requested trace-only audit.\nPaths checked: traces/unmarked.json.\nSanitization was not confirmed after the single preflight; the payload was skipped.",
+      "detailed_report": null,
+      "executive_summary": null,
+      "coverage": null,
+      "metrics": null,
+      "impact": null,
+      "ranking_scope": null
+    },
+    {
+      "case": "completed-review",
+      "response": "Synthetic checker oracle only; no agent ran and no reports were saved.",
+      "detailed_report": "## Verdict and evidence coverage\nSynthetic checker oracle, not a model result. Coverage and metrics below are supplied test inputs, not verified audit evidence.\n\n## Call map and inventory\nThe oracle models two reads per completed request. Tool attempts and the two model-usage records are separate populations.\n\n## Runtime metrics\nThe supplied twenty-request sample contains forty tool attempts. Model usage includes cached input in input and reasoning in output.\n\n## Ranked findings\nThe synthetic branch has one scenario-local avoidable read; its supplied frequency is one half. These are checker inputs, not measured application savings.\n\n## Proposed design\nThe oracle proposes thirty logical tool calls instead of forty, with ten non-overlapping saved calls.\n\n## Validation plan and missing evidence\nNo live candidate evaluation or host behavior has been verified. Source meaning, trace correlation and safe reuse require independent review.",
+      "executive_summary": "# Executive Summary\n\nSynthetic checker oracle only, not a captured audit.\n\n| Priority | Weak area | Code location | Recommended improvement | Expected benefit | Evidence |\n|---|---|---|---|---|---|\n| P1 | Synthetic repeated read | src/pipeline.py:10-11, audit_fixture | Test conditional reuse without changing safeguards | Supplied local impact only; not validated | Synthetic checker inputs; source meaning not verified |\n\nEvidence gaps: no live behavior, comparative quality or host validation.\nKeep identity, freshness, validation and error safeguards.\nNext step: capture and independently review a real synthetic-host run.",
+      "coverage": [
+        {
+          "area": "orchestration",
+          "status": "inspected",
+          "evidence": ["src/pipeline.py:8-12"],
+          "gap": null
+        },
+        {
+          "area": "tools-retries",
+          "status": "inspected",
+          "evidence": ["src/pipeline.py:10-11"],
+          "gap": null
+        },
+        {
+          "area": "models-context",
+          "status": "partial",
+          "evidence": ["synthetic model-attempt usage rows"],
+          "gap": "No comparative output-quality evidence."
+        },
+        {
+          "area": "output-consumption",
+          "status": "inspected",
+          "evidence": ["src/pipeline.py:12"],
+          "gap": null
+        },
+        {
+          "area": "safety",
+          "status": "missing",
+          "evidence": [],
+          "gap": "Runtime identity and freshness state were not verified."
+        },
+        {
+          "area": "runtime-evidence",
+          "status": "partial",
+          "evidence": ["synthetic twenty-request sample"],
+          "gap": "Supplied checker data, not a live capture."
+        }
+      ],
+      "metrics": {
+        "logical_calls": 40,
+        "attempts": 40,
+        "outcomes": {"succeeded": 40, "failed": 0, "cancelled": 0, "unfinished": 0},
+        "request_attempts": [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+        "statistics": {"mean": 2, "median": 2, "p95": 2, "percentile_method": "nearest-rank"},
+        "usage": {
+          "semantics": "input-includes-cache;output-includes-reasoning",
+          "rows": [
+            {"id": "oracle-model-1", "input": 100, "cached_input": 20, "output": 10, "reasoning": 4},
+            {"id": "oracle-model-2", "input": 50, "cached_input": 10, "output": 5, "reasoning": 1}
+          ],
+          "totals": {"input": 150, "cached_input": 30, "output": 15, "reasoning": 5}
+        },
+        "savings": {
+          "unit": "logical_tool_calls",
+          "baseline": 40,
+          "proposed": 30,
+          "combined_savings": 10
+        }
+      },
+      "impact": [
+        {
+          "id": "conditional-read",
+          "scenario": "synthetic-branch",
+          "unit": "tool_calls",
+          "scenario_local": 1,
+          "branch_frequency": 0.5,
+          "frequency_evidence": "Synthetic oracle input: ten of twenty requests.",
+          "workload_weighted": 0.5
+        }
+      ],
+      "ranking_scope": "workload"
+    }
+  ]
+}

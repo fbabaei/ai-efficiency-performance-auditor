@@ -1,0 +1,122 @@
+{
+  "description": "Synthetic evaluation inputs and checker expectations, not captured agent outputs. Keep expectations outside the audited workspace.",
+  "cases": [
+    {
+      "id": "comparison-matched",
+      "skill": "audit-comparison",
+      "input": "Compare these supplied synthetic reports only. report-baseline: 20 completed comparable requests, 80 logical tool calls. report-candidate: 40 completed requests of the same workload mix, 120 logical tool calls. Reports explicitly match permissions, data/freshness, policy, cache, model/settings, provider/concurrency and counting semantics; only redundant read removal changes. Quality and safety margins are not evaluated. Cite the supplied report labels, do not inspect source or traces.",
+      "assessment": "inconclusive",
+      "metrics": {"baseline_calls_per_request": 4, "candidate_calls_per_request": 3, "delta_calls_per_request": -1, "percent_change": -25},
+      "finding_categories": [],
+      "required_evidence": ["report-baseline", "report-candidate"]
+    },
+    {
+      "id": "comparison-confounded",
+      "skill": "audit-comparison",
+      "input": "Compare supplied synthetic reports only. report-baseline: 20 requests, 80 logical tool calls, cold cache. report-candidate: 20 requests, 40 logical tool calls, warm cache and changed authorization policy. Quality is not supplied. Both use the same scenario label. No source or trace access.",
+      "assessment": "not-comparable",
+      "metrics": {"delta_calls_per_request": null, "percent_change": null},
+      "finding_categories": [],
+      "required_evidence": ["report-baseline", "report-candidate"]
+    },
+    {
+      "id": "comparison-zero-baseline",
+      "skill": "audit-comparison",
+      "input": "Compare supplied synthetic report-baseline and report-candidate only. Both cover 20 completed identical requests with matched conditions and counting semantics. Baseline has zero logical tool calls; candidate has 20. Quality evidence is absent. Do not fetch code or traces.",
+      "assessment": "inconclusive",
+      "metrics": {"baseline_calls_per_request": 0, "candidate_calls_per_request": 1, "delta_calls_per_request": 1, "percent_change": "N/A"},
+      "finding_categories": [],
+      "required_evidence": ["report-baseline", "report-candidate"]
+    },
+    {
+      "id": "comparison-missing-usage",
+      "skill": "audit-comparison",
+      "input": "Compare supplied synthetic report-baseline and report-candidate only. Matching scenario and request coverage; baseline total input tokens are unknown because failed-attempt usage is missing. Candidate total input is 1000 tokens. No additional evidence is available.",
+      "assessment": "inconclusive",
+      "metrics": {"delta_input_tokens": null, "percent_change": null},
+      "finding_categories": [],
+      "required_evidence": ["report-baseline", "report-candidate"]
+    },
+    {
+      "id": "comparison-omitted-finding",
+      "skill": "audit-comparison",
+      "input": "Compare two supplied synthetic audits only. report-baseline has a demonstrated duplicate retrieval finding. report-candidate omits that finding, but inspected a different narrower path and provides no evidence about the duplicate mechanism. No source or traces are available.",
+      "assessment": "not-verifiable",
+      "metrics": {"resolved_findings": 0},
+      "finding_categories": [],
+      "required_evidence": ["report-baseline", "report-candidate"]
+    },
+    {
+      "id": "context-duplicate-insertion",
+      "skill": "context-retrieval-review",
+      "input": "Review only supplied synthetic source and contract. Source ctx.py:1-4 is:\ndef assemble(segment):\n    messages = [segment, segment]\n    return messages\n\nThe contract states segment is an unchanged authorized immutable evidence segment with 100 recorded tokens under the same tokenizer. Assembly at line 2 is the only consumer, a single occurrence satisfies the schema and all quality/safety/citation requirements, and insertion has no side effects. One model call consumes the result. Report static conditional savings, not measured output quality.",
+      "assessment": "conditional-opportunity",
+      "metrics": {"scenario_local_avoidable_input_tokens": 100, "avoidable_model_calls": 0},
+      "finding_categories": ["duplicate-context-insertion"],
+      "required_evidence": ["ctx.py:2"]
+    },
+    {
+      "id": "context-changed-version",
+      "skill": "context-retrieval-review",
+      "input": "Review supplied synthetic segment metadata only: selection-a and selection-b share document ID doc-1 but refer to versions v1 and v2 under different freshness states. Tokens are known but equivalence, consumers and quality of deduplication are not. Do not fetch document text.",
+      "assessment": "no-demonstrated-waste",
+      "metrics": {"scenario_local_avoidable_input_tokens": null},
+      "finding_categories": [],
+      "required_evidence": ["selection-a", "selection-b"]
+    },
+    {
+      "id": "context-unconsumed-unknown",
+      "skill": "context-retrieval-review",
+      "input": "Review supplied synthetic retrieval record selection-a: 10 selected documents and a configured top-k of 50. Only two documents are cited in the answer, but hidden validation/consumer evidence is unavailable. Tokenizer and token counts are unknown; text length is 4000 characters. Do not fetch passages or prompts.",
+      "assessment": "no-demonstrated-waste",
+      "metrics": {"selected_but_unconsumed_ratio": null, "scenario_local_avoidable_input_tokens": null},
+      "finding_categories": [],
+      "required_evidence": ["selection-a"]
+    },
+    {
+      "id": "orchestration-nested-retry-bound",
+      "skill": "orchestration-efficiency-review",
+      "input": "Review supplied synthetic policies only. outer-policy wraps every failed SDK operation with at most 2 total attempts. sdk-policy executes at most 3 total transport attempts on each outer invocation. Source contracts establish both layers execute on the all-failure branch with no other retries. There are no runtime records. Recovery requirements and write/read safety are unknown.",
+      "assessment": "conditional-bound",
+      "metrics": {"conditional_transport_attempt_bound": 6, "observed_transport_attempts": null, "safely_avoidable_attempts": null},
+      "finding_categories": [],
+      "required_evidence": ["outer-policy", "sdk-policy"]
+    },
+    {
+      "id": "orchestration-mutually-exclusive-retries",
+      "skill": "orchestration-efficiency-review",
+      "input": "Review supplied synthetic policy-a and policy-b: routing selects exactly one branch. Branch A permits 2 total attempts, branch B 3; they never nest. No runtime records or branch frequencies are supplied.",
+      "assessment": "conditional-bound",
+      "metrics": {"conditional_attempt_upper_bound": 3, "observed_attempts": null},
+      "finding_categories": [],
+      "required_evidence": ["policy-a", "policy-b"]
+    },
+    {
+      "id": "orchestration-cache-isolation",
+      "skill": "orchestration-efficiency-review",
+      "input": "Review supplied synthetic cache-read-a and cache-read-b: identical tool/query text but different tenant/auth scopes and data versions. No cross-tenant reuse contract exists. Cache eligibility and complete hit/miss records are unavailable.",
+      "assessment": "no-demonstrated-waste",
+      "metrics": {"cache_hit_rate": null, "safely_coalescible_reads": null},
+      "finding_categories": [],
+      "required_evidence": ["cache-read-a", "cache-read-b"]
+    },
+    {
+      "id": "orchestration-overlap",
+      "skill": "orchestration-efficiency-review",
+      "input": "Review supplied synthetic attempts span-a=[0,5) and span-b=[5,10) milliseconds. These are the complete aligned start/end records for the two attempts; no parent dependency is available. The operation classes and runtime admissibility contract are supplied, but no consumption/safe-removal evidence exists.",
+      "assessment": "no-demonstrated-waste",
+      "metrics": {"observed_peak_attempt_concurrency": 1, "critical_path_ms": null},
+      "finding_categories": [],
+      "required_evidence": ["span-a", "span-b"]
+    },
+    {
+      "id": "orchestration-disconnect-durable",
+      "skill": "orchestration-efficiency-review",
+      "input": "Review supplied synthetic request-a: an accepted durable write must finish and run required cleanup after client disconnection. job-a has an independent consumer. The source contract establishes this lifecycle is intentional and required. No replay or cancellation is authorized.",
+      "assessment": "no-demonstrated-waste",
+      "metrics": {"confirmed_avoidable_post_disconnect_calls": 0},
+      "finding_categories": [],
+      "required_evidence": ["request-a", "job-a"]
+    }
+  ]
+}

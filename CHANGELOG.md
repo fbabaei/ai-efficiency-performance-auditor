@@ -2,6 +2,29 @@
 
 ## 0.4.0 - Unreleased
 
+- Add opt-in audit-comparison, context-retrieval-review and orchestration-efficiency
+  skills without new tools/permissions. Cover comparable per-request deltas,
+  quality/confounder limits, versioned context/consumption, layer-specific retry
+  and cache/fan-out metrics, cancellation and safe Mermaid report text. Add
+  internal advisory evidence/report contracts, synthetic positive/negative
+  acceptance cases and selected companion checks; no new live validation claimed.
+- Add a separate executable captured-output conformance checker and synthetic
+  mutation cases for stop states, coverage, reconciliation, percentile thresholds
+  and scoped impact. Reuse summary validation without changing historical
+  accounting/reporting schemas. Require explicit coverage rows, align service
+  ranking with core scope rules, and document the prioritized v0.5.0 acceptance
+  backlog and remaining live/semantic gaps; no new agent captures are claimed.
+- Keep one shared VS Code/CLI/experimental-cloud profile below the cloud prompt
+  limit and explicitly require user selection. Consolidate evidence invariants;
+  add deterministic correlation/normalization, reconciliation, scenario-local
+  versus measured workload impact, provenance and safety inventories, and
+  statistical validation criteria.
+- Allow one batched exact-path sanitization preflight without payload access.
+  Validate drafts before create-once report writes, cap filename probes, and
+  disclose partial/invalid artifacts without repair or retries. Use portable
+  visible citations and manual preview fallback when interaction is unavailable.
+  Extend existing offline contracts and host/model conformance cases; preserve
+  discovery caps and make no new live-behavior claims.
 - Add an opt-in, framework-neutral service-performance review skill with separate
   service impact reporting, lifecycle/backpressure safeguards, and manual
   behavior cases. Preserve audit permissions and existing orchestration checks;

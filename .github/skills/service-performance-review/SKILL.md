@@ -49,6 +49,7 @@ mechanism once with cross-references.
 | Streaming | Follow producer, queue/buffer, consumer, disconnect, cancellation, and finally/close paths. Determine whether production is paced by consumption. Streaming fragments are not separate model/tool calls. A bounded queue must also have a viable shutdown path. |
 | Storage | Follow query count, batch/pagination semantics, transaction boundaries, indexes when available, payload size, and repeated serialization. N+1 shapes are review targets, not proof that batching preserves authorization, ordering, consistency, or errors. |
 | Resource lifecycle | Trace acquisition/release on success, exceptions, timeouts, partial initialization, stream disconnect, and shutdown. Check ownership before calling an unclosed borrowed resource a leak. Preserve explicit errors and required cleanup. |
+| Deadlines and cancellation | Trace request deadline propagation, remaining retry/backoff budget, disconnect handling, cancellation ownership and outstanding downstream consumers. Do not equate abandoned client work with avoidable work: cleanup, accepted durable jobs and independently consumed results can be required. Missing timestamps/correlation prevent measured post-deadline waste claims. |
 
 Label each claim measured, statically demonstrated, or hypothetical. A reachable
 blocking call or missing owned-resource release can be a demonstrated defect
@@ -83,6 +84,9 @@ Retain all six report sections and the Executive Summary/save/preview workflow:
    execution/ownership conditions, and relevant safeguards; medium applies to a
    demonstrated conditional branch with unknown frequency. Hypotheses stay
    unranked. Qualitative lifecycle defects need no invented numeric savings.
+   Separate scenario-local and workload-weighted impact under the core rules.
+   Without measured branch frequencies, rank within each scenario and leave
+   traffic-level impact unknown.
 5. **Proposed design:** show the affected service flow and lifecycle before/after.
    Do not force call reduction for scheduling, backpressure, or cleanup changes.
    Preserve independent checks, tenant/identity separation, authorization,

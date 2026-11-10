@@ -17,6 +17,7 @@ Focus on:
 - Model selection and reasoning effort.
 
 Use existing runtime traces only when their sanitization is safely established. I am not confirming that any particular trace is sanitized. Otherwise, use source evidence and report conditional bounds—not observed counts.
+For existing user-named traces, allow the methodology's one exact-path sanitization preflight question before skipping; negative, ambiguous or absent replies never authorize payload reads.
 
 Treat historical performance reports as secondary evidence. Check whether their recommendations are already implemented before repeating them as current findings.
 
@@ -29,9 +30,11 @@ Clearly separate:
 For every demonstrated finding, cite the affected function/configuration and precise file-and-line ranges. Explain why the work is avoidable, considering authorization, freshness, dependencies, failure recovery, and output consumption.
 
 Keep logical tool calls, execution attempts, downstream requests, model calls, and tokens separate. Rank demonstrated optimizations by confidence, supported impact, risk, and effort. Do not invent savings or treat repeated calls as automatically redundant.
+Distinguish scenario-local from workload-weighted impact; without measured branch frequencies, rank within each scenario and leave traffic impact unknown.
 
 Keep smaller-model substitutions, lower reasoning effort, and quality-dependent context reductions in the validation plan unless comparative evidence supports them.
 
 Save the complete detailed six-section audit as reports/<application>-audit-detailed-report.md and a new Executive Summary as reports/<application>-audit-executive-summary.md. Never overwrite existing files; use the first unused numeric suffix for each occupied path. Include scenario-specific baseline/candidate call budgets, safeguards, and a matched validation plan. If evidence is insufficient, identify the smallest sanitized export needed to resolve the highest-value uncertainty.
+Stop states (`not auditable` or `scope selection required`) create neither report. Validate complete drafts before writing, probe at most ten paths per report, and create each file once. Partial/invalid writes remain untouched; return corrected content in Chat without alternate-path retries.
 
 Read both saved files back, verify all six sections and evidence citations in the detailed report, and check the Executive Summary's 60-line and 600-word limits (these limits do not apply to the detailed report). Link the verified detailed report from the summary and provide links to both files. Disclose save or verification failures and return any unsaved report in Chat. After successful summary verification, ask: "Open the Executive Summary in Markdown preview?" Open only that new summary after an explicit Yes; otherwise do not open preview.
