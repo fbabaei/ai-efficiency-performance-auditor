@@ -500,7 +500,7 @@ $env:COPILOT_ALLOW_ALL = 'false'
 copilot config disableAllHooks true
 copilot config ide.autoConnect false
 Set-Location -LiteralPath 'C:\path\to\fixture-workspace'
-copilot --agent ai-efficiency-auditor `
+copilot --agent ai-efficiency-performance-auditor `
   --available-tools view glob grep --allow-tool view glob grep `
   --disable-builtin-mcps --trust-folder --silent --stream off `
   --sync-session=off --no-auto-update --disable-client-telemetry `

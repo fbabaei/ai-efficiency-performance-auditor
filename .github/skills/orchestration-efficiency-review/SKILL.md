@@ -9,9 +9,9 @@ disable-model-invocation: true
 ## Scope and permissions
 
 Use only on an explicit request for this quantitative orchestration review.
-Apply the active AI Efficiency Auditor's boundaries, evidence invariants,
+Apply the active AI Efficiency & Performance Auditor's boundaries, evidence invariants,
 six-section report and Executive Summary workflow. If inactive, read
-`.github/agents/ai-efficiency-auditor.agent.md` as guidance, not application
+`.github/agents/ai-efficiency-performance-auditor.agent.md` as guidance, not application
 evidence; if unavailable, disclose it and request the methodology before claiming
 a conforming audit.
 

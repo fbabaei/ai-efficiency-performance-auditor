@@ -13,12 +13,12 @@ class PackagingTests(unittest.TestCase):
         directory = ROOT / ".github" / "agents"
         self.assertEqual(
             sorted(path.name for path in directory.iterdir()),
-            ["ai-efficiency-auditor.agent.md"],
+            ["ai-efficiency-performance-auditor.agent.md"],
         )
-        agent = (directory / "ai-efficiency-auditor.agent.md").read_text(encoding="utf-8")
+        agent = (directory / "ai-efficiency-performance-auditor.agent.md").read_text(encoding="utf-8")
         self.assertTrue(agent.startswith("---\n"))
         header, body = agent[4:].split("\n---\n", 1)
-        self.assertIn("name: AI Efficiency Auditor", header.splitlines())
+        self.assertIn("name: AI Efficiency & Performance Auditor", header.splitlines())
         self.assertIn(
             "tools: [read, search, edit, ask_user, appmod-preview-markdown]",
             header.splitlines(),
@@ -48,7 +48,7 @@ class PackagingTests(unittest.TestCase):
                 )
 
     def test_executive_summary_contract_is_declared(self) -> None:
-        agent = (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md").read_text(
+        agent = (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md").read_text(
             encoding="utf-8"
         )
         agent = " ".join(agent.split())
@@ -78,7 +78,7 @@ class PackagingTests(unittest.TestCase):
                 self.assertIn(requirement, agent)
 
     def test_code_location_contract_is_declared(self) -> None:
-        agent = (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md").read_text(
+        agent = (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md").read_text(
             encoding="utf-8"
         )
         agent = " ".join(agent.split())
@@ -103,7 +103,7 @@ class PackagingTests(unittest.TestCase):
                 self.assertIn(requirement, agent)
 
     def test_detailed_report_persistence_contract_is_declared(self) -> None:
-        agent = (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md").read_text(
+        agent = (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md").read_text(
             encoding="utf-8"
         )
         agent = " ".join(agent.split())
@@ -125,7 +125,7 @@ class PackagingTests(unittest.TestCase):
                 encoding="utf-8"
             )
             for requirement in (
-                'agent: "AI Efficiency Auditor"',
+                'agent: "AI Efficiency & Performance Auditor"',
                 "reports/<application>-audit-detailed-report.md",
                 "reports/<application>-audit-executive-summary.md",
                 "Never overwrite existing files",
@@ -186,7 +186,7 @@ class PackagingTests(unittest.TestCase):
         ):
             with self.subTest(requirement=requirement):
                 self.assertIn(requirement, normalized)
-        agent = (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md").read_text(
+        agent = (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md").read_text(
             encoding="utf-8"
         )
         self.assertIn("`service-performance-review`", agent)
@@ -197,7 +197,7 @@ class PackagingTests(unittest.TestCase):
 
     def test_scope_and_stop_contract_is_declared(self) -> None:
         agent = " ".join(
-            (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md")
+            (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md")
             .read_text(encoding="utf-8").split()
         )
         for requirement in (
@@ -212,7 +212,7 @@ class PackagingTests(unittest.TestCase):
 
     def test_sanitization_preflight_contract_is_declared(self) -> None:
         agent = " ".join(
-            (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md")
+            (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md")
             .read_text(encoding="utf-8").split()
         )
         for requirement in (
@@ -231,7 +231,7 @@ class PackagingTests(unittest.TestCase):
 
     def test_evidence_admissibility_and_reconciliation_contract(self) -> None:
         agent = " ".join(
-            (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md")
+            (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md")
             .read_text(encoding="utf-8").split()
         )
         for requirement in (
@@ -252,7 +252,7 @@ class PackagingTests(unittest.TestCase):
 
     def test_scope_aware_ranking_and_validation_contract(self) -> None:
         agent = " ".join(
-            (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md")
+            (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md")
             .read_text(encoding="utf-8").split()
         )
         for requirement in (
@@ -270,7 +270,7 @@ class PackagingTests(unittest.TestCase):
 
     def test_provenance_and_safety_contract(self) -> None:
         agent = " ".join(
-            (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md")
+            (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md")
             .read_text(encoding="utf-8").split()
         )
         for requirement in (
@@ -289,7 +289,7 @@ class PackagingTests(unittest.TestCase):
 
     def test_exploration_budget_contract(self) -> None:
         agent = " ".join(
-            (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md")
+            (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md")
             .read_text(encoding="utf-8").split()
         )
         for requirement in (
@@ -308,7 +308,7 @@ class PackagingTests(unittest.TestCase):
 
     def test_bounded_report_creation_and_host_fallback_contract(self) -> None:
         agent = " ".join(
-            (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md")
+            (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md")
             .read_text(encoding="utf-8").split()
         )
         for requirement in (
@@ -328,7 +328,7 @@ class PackagingTests(unittest.TestCase):
                 self.assertIn(requirement, agent)
 
     def test_entry_point_discovery_contract(self) -> None:
-        agent = (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md").read_text(
+        agent = (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md").read_text(
             encoding="utf-8"
         )
         agent = " ".join(agent.split())

@@ -11,7 +11,7 @@ In a disposable workspace, a maintainer places each fenced input below in its
 own named source file, with a minimal README containing the stated contract.
 Use one independent workspace/session per case; do not expose this answer key
 to the auditor. These inputs are ordinary source, not runtime traces.
-Install the candidate agent and optional skill. Invoke **AI Efficiency Auditor**:
+Install the candidate agent and optional skill. Invoke **AI Efficiency & Performance Auditor**:
 
 > Review service performance starting at the named source file and its handler.
 > Follow only direct dependencies. Keep application evidence read-only, do not

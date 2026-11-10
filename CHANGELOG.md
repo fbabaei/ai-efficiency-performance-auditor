@@ -2,6 +2,12 @@
 
 ## 0.5.0 - Unreleased
 
+- Rename the agent to AI Efficiency & Performance Auditor, its definition/CLI ID
+  to `ai-efficiency-performance-auditor`, and the repository to
+  `fbabaei/ai-efficiency-performance-auditor`. Update prompts, optional skill
+  references and installation/upgrade documentation without expanding permissions.
+- Document reusable focused first-audit and deep-analysis prompts, their skill
+  prerequisites and source-only/report-only boundaries.
 - Bump the active agent methodology, reusable prompts and evaluation version to
   0.5.0. Preserve historical capture versions and internal advisory contract IDs;
   this candidate bump does not publish a release or establish live-host validation.

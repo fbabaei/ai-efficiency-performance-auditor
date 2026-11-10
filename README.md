@@ -1,12 +1,19 @@
-# AI Efficiency Auditor
+# AI Efficiency & Performance Auditor
+
+Evidence-backed review of AI application efficiency, performance and reliability
+safeguards.
 
 **Developer and author:** Fereydoun Babaei.
+
+[Repository](https://github.com/fbabaei/ai-efficiency-performance-auditor)
 
 A custom agent for GitHub Copilot in VS Code with read-only application access
 and report-only file creation. Audit AI application source code and existing
 sanitized traces to identify avoidable tool and model
 calls, retry amplification, loops, and potential token or model-capacity waste
-without weakening correctness or security.
+without weakening correctness or security. Explicitly requested optional reviews
+also examine service performance and reliability safeguards, including pooling,
+streaming, concurrency, deadlines and cleanup.
 
 The agent recommends changes and validation experiments, saves a detailed Markdown
 audit and Executive Summary, and asks before opening the summary preview. It does not edit application code,
@@ -33,8 +40,9 @@ correctness or security.
 
 ## Files
 
-- [Agent definition](.github/agents/ai-efficiency-auditor.agent.md)
+- [Agent definition](.github/agents/ai-efficiency-performance-auditor.agent.md)
 - [Detailed documentation](docs/agent-guide.md)
+- [Copy-and-paste first-audit and deep-analysis prompts](docs/usage-prompts.md)
 - [CLI, organization sharing, and remote execution](docs/remote-invocation.md)
 - [Synthetic evaluation suite](evaluations/README.md)
 - [Prioritized v0.5.0 acceptance backlog](docs/v0.5.0-backlog.md)
@@ -48,7 +56,7 @@ correctness or security.
    Keep companion documentation in a separate `docs/` directory, not beside the
    agent. Hosts can discover ordinary `.md` files in agent directories too.
 4. Open your application repository in VS Code.
-5. Select **AI Efficiency Auditor** in the Copilot Chat agent picker.
+5. Select **AI Efficiency & Performance Auditor** in the Copilot Chat agent picker.
    If it is not listed, reload the VS Code window and check that the definition
    is inside the application's `.github/agents/` directory.
 6. Submit a scoped audit request.
@@ -56,7 +64,7 @@ correctness or security.
 For optional service-performance reviews, also copy
 [`.github/skills/service-performance-review/`](.github/skills/service-performance-review/SKILL.md)
 to the same path in the application repository. Keep it separate from the
-agent directory. Select **AI Efficiency Auditor** and explicitly request a
+agent directory. Select **AI Efficiency & Performance Auditor** and explicitly request a
 service-performance review, naming a source entry point and scenario. The skill
 is opt-in; ordinary tool/model audits do not load its checklist. It adds async,
 pooling, concurrency, streaming, storage, and cleanup review without granting
@@ -75,7 +83,7 @@ permissions; they do not execute workloads, collect telemetry or modify code.
 | [context-retrieval-review](.github/skills/context-retrieval-review/SKILL.md) | Review history/context growth, retrieved-document versions, top-k/reranking, embedding reuse, repeated schemas and unused evidence |
 | [orchestration-efficiency-review](.github/skills/orchestration-efficiency-review/SKILL.md) | Quantify layered retries, fan-out, cache/coalescing eligibility, concurrency, critical paths and cancellation/deadline work |
 
-Select **AI Efficiency Auditor** and name the mode and exact inputs. The agent
+Select **AI Efficiency & Performance Auditor** and name the mode and exact inputs. The agent
 loads only explicitly requested modes, discloses missing skill files and keeps
 their reads within the same exploration budgets. Comparison is advisory:
 confounded inputs become separate profiles, omitted findings are not assumed
@@ -94,6 +102,13 @@ does not give the agent access to a separate application's workspace.
 > repeated inference, retry amplification, token usage, and model selection.
 > Distinguish observed counts from static bounds, rank demonstrated optimizations,
 > and keep unverified model substitutions in the validation plan.
+
+For ready-to-use source-only reviews, copy the
+[focused first-audit prompt](docs/usage-prompts.md#focused-first-audit) or the
+[deep-analysis prompt](docs/usage-prompts.md#deep-analysis). The first explicitly
+uses the orchestration and context/retrieval skills; the deeper review also
+adds service-performance checks. Install the required skill folders in the
+application repository before using either prompt.
 
 Name application paths and scenarios explicitly for a narrower audit. If traces
 are available, provide their workspace paths. Before payload access, their
@@ -186,11 +201,22 @@ Pull newer versions of this repository, review changes to the agent definition,
 and replace the installed copy in your application repository. Copies do not
 update automatically.
 
-When upgrading from **Tool-Call Optimization Auditor**, remove the old
+When upgrading from **AI Efficiency Auditor** or **Tool-Call Optimization
+Auditor**, remove the installed `ai-efficiency-auditor.agent.md` or
 `tool-call-optimization-auditor.agent.md` definition and install
-`ai-efficiency-auditor.agent.md` instead, so both profiles are not discovered.
-Update CLI invocations to `--agent ai-efficiency-auditor`. The GitHub repository
-name is unchanged.
+`ai-efficiency-performance-auditor.agent.md` instead, so duplicate profiles are
+not discovered. Replace the optional skill folders too: their methodology
+references now point to the renamed agent definition. Update reusable prompts
+to select **AI Efficiency & Performance Auditor** and CLI invocations to
+`--agent ai-efficiency-performance-auditor`.
+
+The GitHub repository is now
+[`fbabaei/ai-efficiency-performance-auditor`](https://github.com/fbabaei/ai-efficiency-performance-auditor).
+Existing clones can update their remote without renaming their local folder:
+
+```powershell
+git remote set-url origin https://github.com/fbabaei/ai-efficiency-performance-auditor.git
+```
 
 Do not submit credentials, private source code, raw prompts, or unsanitized
 traces in public issues or pull requests.

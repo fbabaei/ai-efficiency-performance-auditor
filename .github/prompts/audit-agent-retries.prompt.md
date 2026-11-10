@@ -1,9 +1,9 @@
 ---
 description: "Audit AI agent retry amplification, loops, and handoffs for avoidable tool and model work."
-agent: "AI Efficiency Auditor"
+agent: "AI Efficiency & Performance Auditor"
 ---
 
-Audit this workspace's AI agent orchestration and failure-recovery flow using AI Efficiency Auditor methodology 0.5.0.
+Audit this workspace's AI agent orchestration and failure-recovery flow using AI Efficiency & Performance Auditor methodology 0.5.0.
 
 Keep application code, configuration, and existing evidence read-only. Do not execute commands or workloads, replay requests, invoke other agents, call external services, or modify the application. The only write exception is creating new Markdown detailed audit and Executive Summary files under reports/.
 

@@ -6,12 +6,12 @@ agent or authorize access to another repository.
 ## Organization-level distribution
 
 An organization owner can place the
-[agent definition](../.github/agents/ai-efficiency-auditor.agent.md) in:
+[agent definition](../.github/agents/ai-efficiency-performance-auditor.agent.md) in:
 
 ```text
-<organization>/.github          -> agents/ai-efficiency-auditor.agent.md
+<organization>/.github          -> agents/ai-efficiency-performance-auditor.agent.md
 or
-<organization>/.github-private  -> agents/ai-efficiency-auditor.agent.md
+<organization>/.github-private  -> agents/ai-efficiency-performance-auditor.agent.md
 ```
 
 These are root `agents/` directories in the organization configuration repository,
@@ -67,11 +67,11 @@ For versions supporting `--agent`, start an interactive session:
 
 ```powershell
 Set-Location -LiteralPath 'C:\path\to\application'
-copilot --agent ai-efficiency-auditor
+copilot --agent ai-efficiency-performance-auditor
 ```
 
 Alternatively, start `copilot` and use `/agent` to select the auditor. Verify the
-selected agent is **AI Efficiency Auditor** before submitting your audit
+selected agent is **AI Efficiency & Performance Auditor** before submitting your audit
 request. Do not approve execution, web, or delegation tools for this role.
 For interactive report saving, approve only creation of new Markdown detailed
 audits and Executive Summaries, never application edits or overwrites. Preview is optional, local, and

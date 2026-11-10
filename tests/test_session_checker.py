@@ -288,7 +288,7 @@ class SessionCheckerTests(unittest.TestCase):
     def test_root_listing_rejects_recursive_or_unapproved_entries(self) -> None:
         for content in (
             "private", "expected.json", "tests", "traces/scenarios.json",
-            ".github/agents/ai-efficiency-auditor.agent.md", "../outside",
+            ".github/agents/ai-efficiency-performance-auditor.agent.md", "../outside",
             '{"sanitized": true}', "README.md\nprivate",
         ):
             with self.subTest(content=content):

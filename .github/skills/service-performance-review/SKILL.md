@@ -1,6 +1,6 @@
 ---
 name: service-performance-review
-description: "Use when explicitly asked to review service performance: async blocking, client and pool lifecycle, concurrency limits, streaming backpressure, storage access, or resource cleanup. Extends AI Efficiency Auditor with evidence-backed service findings; not a benchmark runner."
+description: "Use when explicitly asked to review service performance: async blocking, client and pool lifecycle, concurrency limits, streaming backpressure, storage access, or resource cleanup. Extends AI Efficiency & Performance Auditor with evidence-backed service findings; not a benchmark runner."
 disable-model-invocation: true
 ---
 
@@ -9,9 +9,9 @@ disable-model-invocation: true
 ## Scope and permissions
 
 Use only for an explicitly requested service-performance audit, not every AI
-efficiency audit. Apply the AI Efficiency Auditor methodology and its six-section
+efficiency audit. Apply the AI Efficiency & Performance Auditor methodology and its six-section
 report and Executive Summary workflow. If its definition is not active, read
-`.github/agents/ai-efficiency-auditor.agent.md` as guidance, not application
+`.github/agents/ai-efficiency-performance-auditor.agent.md` as guidance, not application
 evidence; if unavailable, disclose that the methodology is unavailable and ask
 for it before claiming a conforming audit.
 

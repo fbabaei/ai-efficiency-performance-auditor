@@ -37,7 +37,7 @@ SKILLS = {
 
 class AdvisorySkillTests(unittest.TestCase):
     def test_explicit_opt_in_frontmatter_and_core_routing(self) -> None:
-        agent = (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md").read_text(
+        agent = (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md").read_text(
             encoding="utf-8"
         )
         for name in SKILLS:
@@ -69,7 +69,7 @@ class AdvisorySkillTests(unittest.TestCase):
                 "read-only", "Do not execute commands", "invoke other agents",
                 "call external services", "only write exception",
                 "sanitization gates", "per-file budgets", "no-overwrite",
-                ".github/agents/ai-efficiency-auditor.agent.md",
+                ".github/agents/ai-efficiency-performance-auditor.agent.md",
             ):
                 with self.subTest(skill=name, requirement=requirement):
                     self.assertIn(requirement, body)
@@ -98,7 +98,7 @@ class AdvisorySkillTests(unittest.TestCase):
                 self.assertIn(requirement.lower(), body.lower())
 
     def test_modes_report_consistent_contract_versions(self) -> None:
-        agent = (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md").read_text(
+        agent = (ROOT / ".github" / "agents" / "ai-efficiency-performance-auditor.agent.md").read_text(
             encoding="utf-8"
         )
         reference = (

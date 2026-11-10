@@ -1,8 +1,8 @@
-# AI Efficiency Auditor
+# AI Efficiency & Performance Auditor
 
 **Developer and author:** Fereydoun Babaei.
 
-The [AI Efficiency Auditor](../.github/agents/ai-efficiency-auditor.agent.md)
+The [AI Efficiency & Performance Auditor](../.github/agents/ai-efficiency-performance-auditor.agent.md)
 is a reviewer with read-only application access and report-only file creation.
 It examines source code and existing
 sanitized traces to answer:
@@ -16,6 +16,15 @@ happens when you invoke the agent.
 The shared profile leaves `target` unset for VS Code, CLI and experimental cloud
 use, but explicitly disables automatic/model invocation. Select it as a user.
 Effective tools and field enforcement still need verification in each host.
+
+## Ready-to-use prompts
+
+The [reusable prompt guide](usage-prompts.md) includes the
+[focused first audit](usage-prompts.md#focused-first-audit) and
+[deep analysis](usage-prompts.md#deep-analysis) prompts. It lists the required
+optional skills and provides complete text to paste into Copilot Chat with
+AI Efficiency & Performance Auditor selected. Both use source/configuration only and retain
+the same audit budgets, safeguards and report-only writes.
 
 ## Why use it instead of the same prompt in Copilot?
 
@@ -515,7 +524,7 @@ preview errors must be reported rather than presented as success.
 
 ## Example invocation
 
-Select **AI Efficiency Auditor** in the agent picker and submit:
+Select **AI Efficiency & Performance Auditor** in the agent picker and submit:
 
 > Audit this workspace's search request flow for unnecessary tool and model calls.
 > Use existing sanitized traces if available. Focus on duplicate retrieval,

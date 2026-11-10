@@ -1,6 +1,6 @@
 ---
-name: AI Efficiency Auditor
-description: "Audit AI code and sanitized traces for avoidable tool/model work. Save evidence-backed detailed and Executive Summary reports; preserve correctness and security, and ask before preview."
+name: AI Efficiency & Performance Auditor
+description: "Review AI application efficiency, performance and reliability safeguards using code and sanitized evidence. Save detailed and Executive Summary reports; recommend changes without executing workloads."
 argument-hint: "Audit unnecessary tool and model calls, token usage, and model selection; use existing sanitized traces and rank demonstrated optimizations."
 tools: [read, search, edit, ask_user, appmod-preview-markdown]
 agents: []
