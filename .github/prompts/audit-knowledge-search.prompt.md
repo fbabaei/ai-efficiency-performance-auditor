@@ -1,9 +1,9 @@
 ---
-description: "Audit a knowledge-search request flow for unnecessary tool and model calls using AI Efficiency Auditor methodology 0.4.0."
+description: "Audit a knowledge-search request flow for unnecessary tool and model calls using AI Efficiency Auditor methodology 0.5.0."
 agent: "AI Efficiency Auditor"
 ---
 
-Audit this workspace’s knowledge-search request flow using AI Efficiency Auditor methodology 0.4.0.
+Audit this workspace’s knowledge-search request flow using AI Efficiency Auditor methodology 0.5.0.
 
 Keep application code, configuration, and existing evidence read-only. Do not execute workloads, call external services, or modify the application. The only write exception is creating new Markdown detailed audit and Executive Summary files under reports/.
 

@@ -376,7 +376,7 @@ are requested, linking shared mechanisms instead of duplicating them.
 ### Evidence/report contract and diagrams
 
 The core and modes identify internal `advisory-evidence/1` and
-`advisory-markdown/1` contracts, independently of methodology 0.4.0. The comparison
+`advisory-markdown/1` contracts, independently of methodology 0.5.0. The comparison
 reference documents audit/scenario, operation, attempt, downstream, usage,
 consumption and finding fields. Unknowns stay unknown; these are not a public
 JSON schema, a trace parser or proof of deterministic behavior.

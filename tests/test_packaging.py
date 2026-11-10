@@ -33,6 +33,19 @@ class PackagingTests(unittest.TestCase):
         expected = (ROOT / "evaluations" / "expected.json").read_text(encoding="utf-8")
         version = json.loads(expected)["methodology_version"]
         self.assertIn(f"Audit methodology version: {version}.", body)
+        self.assertIn(
+            f"## {version} - Unreleased",
+            (ROOT / "CHANGELOG.md").read_text(encoding="utf-8"),
+        )
+        self.assertIn(
+            f"Candidate methodology version: **{version}**",
+            (ROOT / "README.md").read_text(encoding="utf-8"),
+        )
+        for path in (ROOT / ".github" / "prompts").glob("*.prompt.md"):
+            with self.subTest(prompt=path.name):
+                self.assertIn(
+                    f"methodology {version}.", path.read_text(encoding="utf-8"),
+                )
 
     def test_executive_summary_contract_is_declared(self) -> None:
         agent = (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md").read_text(

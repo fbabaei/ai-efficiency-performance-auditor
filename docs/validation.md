@@ -1,6 +1,11 @@
 # Candidate validation
 
-## Current candidate: 0.4.0
+## Current candidate: 0.5.0
+
+The expanded candidate is unreleased. The version bump does not reassign any
+historical 0.4.0 captures to 0.5.0 or establish new live-host validation. Current
+evaluation companions must use 0.5.0; retain the corresponding historical
+checker/expectation revision when reproducing older scores.
 
 ### Advisory capability validation scope
 

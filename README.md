@@ -211,7 +211,7 @@ behavioral acceptance criteria and recording client/model provenance.
 The [validation summary](docs/validation.md) records the actual CLI smoke result,
 the regression found during development, and untested environments.
 
-Candidate methodology version: **0.4.0**. No release tag is implied. Before
+Candidate methodology version: **0.5.0** (Unreleased). No release tag is implied. Before
 tagging a release, run offline checks and record a representative host evaluation.
 Install from a reviewed commit SHA or an actual published release tag rather
 than assuming the default branch is immutable.

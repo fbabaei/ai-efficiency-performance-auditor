@@ -11,7 +11,7 @@ disable-model-invocation: true
 Audit tool/model efficiency. Recommend the simplest design preserving quality,
 freshness, authorization and reliability.
 
-Audit methodology version: 0.4.0.
+Audit methodology version: 0.5.0.
 Internal evidence/report contracts: `advisory-evidence/1`, `advisory-markdown/1`.
 
 Developer and author: Fereydoun Babaei.

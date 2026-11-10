@@ -1,7 +1,10 @@
 # Changelog
 
-## 0.4.0 - Unreleased
+## 0.5.0 - Unreleased
 
+- Bump the active agent methodology, reusable prompts and evaluation version to
+  0.5.0. Preserve historical capture versions and internal advisory contract IDs;
+  this candidate bump does not publish a release or establish live-host validation.
 - Add opt-in audit-comparison, context-retrieval-review and orchestration-efficiency
   skills without new tools/permissions. Cover comparable per-request deltas,
   quality/confounder limits, versioned context/consumption, layer-specific retry
@@ -25,6 +28,9 @@
   visible citations and manual preview fallback when interaction is unavailable.
   Extend existing offline contracts and host/model conformance cases; preserve
   discovery caps and make no new live-behavior claims.
+
+## 0.4.0 - Previous candidate
+
 - Add an opt-in, framework-neutral service-performance review skill with separate
   service impact reporting, lifecycle/backpressure safeguards, and manual
   behavior cases. Preserve audit permissions and existing orchestration checks;
