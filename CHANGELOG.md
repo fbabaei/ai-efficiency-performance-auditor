@@ -2,6 +2,12 @@
 
 ## 0.4.0 - Unreleased
 
+- Add an opt-in, framework-neutral service-performance review skill with separate
+  service impact reporting, lifecycle/backpressure safeguards, and manual
+  behavior cases. Preserve audit permissions and existing orchestration checks;
+  no new live-model or measured application-performance evidence is claimed.
+- Read supplied source entry points before source enumeration and narrow
+  discovery to the remaining budget; oversized results still exhaust it.
 - Save the complete six-section audit under `reports/` alongside the Executive
   Summary, with independent no-overwrite paths, read-back verification, and
   cross-links. Update both reusable prompts and retain summary-only preview consent.

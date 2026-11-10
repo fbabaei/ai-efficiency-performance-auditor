@@ -46,6 +46,15 @@ correctness or security.
    is inside the application's `.github/agents/` directory.
 6. Submit a scoped audit request.
 
+For optional service-performance reviews, also copy
+[`.github/skills/service-performance-review/`](.github/skills/service-performance-review/SKILL.md)
+to the same path in the application repository. Keep it separate from the
+agent directory. Select **AI Efficiency Auditor** and explicitly request a
+service-performance review, naming a source entry point and scenario. The skill
+is opt-in; ordinary tool/model audits do not load its checklist. It adds async,
+pooling, concurrency, streaming, storage, and cleanup review without granting
+execution permissions or adding another agent.
+
 Commit the copied files to your application repository to share the agent with
 that repository's contributors. Opening this distribution repository alone
 does not give the agent access to a separate application's workspace.
@@ -126,8 +135,8 @@ read/search-only allowlist and capture reports with the runner; no preview opens
 Core auditing requires no scripts, service credentials, or MCP servers.
 Automatic preview requires a compatible local host tool. The repository's
 optional evaluation checker uses Python 3.10+ and its standard
-library; it is run by a maintainer, not by the auditor. Framework-specific skills
-are not included. The agent reports
+library; it is run by a maintainer, not by the auditor. The optional service
+skill is framework-neutral; framework-specific skills are not included. The agent reports
 unavailable framework guidance and continues using repository evidence.
 
 The agent's instructions prohibit sending private context to public-web services.

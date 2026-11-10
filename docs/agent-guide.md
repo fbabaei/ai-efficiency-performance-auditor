@@ -48,10 +48,15 @@ The agent reads repository instructions and the README, identifies the applicati
 and relevant framework guidance, then finds entry points, orchestration, tool
 dispatch, model clients and selection, prompt/context construction, output
 consumption, retries, caches, tests, and sanitized traces.
-Discovery starts with exact named guidance files and manifests, followed by
-narrow source/skill-directory globs. Named trace paths are reused without
+Discovery starts with exact guidance and supplied entry-point paths, consulting
+relevant manifests and narrow globs only as needed. Named trace paths are reused without
 enumerating sibling traces; the installed auditor profile is not application
 evidence. Trace-only audits skip directory listings and manifest discovery.
+After required guidance, a supplied source entry point is read before source
+enumeration; direct dependencies are followed with exact paths and file-scoped
+searches. Without a supplied entry point, relevant exact manifests help locate
+one. Discovery must be narrowed to the remaining budget before issuing a
+listing; oversized results still exhaust the budget.
 
 Exploration is bounded to avoid an expensive, open-ended audit. If it cannot
 locate the application, it reports **not auditable** rather than inventing counts.
@@ -231,6 +236,33 @@ difficult and safety-sensitive inputs, independent checks, and stochastic
 variance. Fewer calls alone does not establish a better design.
 Tool/model call and token budgets are separate; overlapping savings are not
 summed when removing one model step also removes its tool work.
+
+## Optional service-performance review
+
+Install the [service-performance skill](../.github/skills/service-performance-review/SKILL.md)
+alongside the agent in the application repository and explicitly request this
+mode. For example:
+
+> Review service performance starting at `src\service\agents\agent.py`, following
+> only direct dependencies for the streaming request path. Check async blocking,
+> client/pool ownership, concurrency, backpressure, storage, and cleanup.
+
+This is specialist guidance for the same auditor, not another runtime agent.
+It preserves permissions, sanitization, budgets, report saving, and preview
+consent. If the skill is missing, the auditor discloses unavailable specialist
+guidance rather than claiming checklist coverage. Existing orchestration checks
+are reused, not duplicated.
+
+The six-section report adds a service inventory, supported service metrics,
+and separately grouped service findings. Demonstrated scheduling or lifecycle
+defects need not reduce tool/model calls. Latency, contention, and resource
+impacts use explicit units or remain unknown; they are not ranked against
+incomparable call/token units. No measured improvement is claimed from static
+code alone. Negative cases include intentionally synchronous worker paths,
+identity-scoped clients, bounded streams, and correctly released resources.
+
+See the [service behavior cases](../evaluations/service-performance.md) for
+review inputs and acceptance criteria. These cases are not live-model evidence.
 
 ## Capabilities and limits
 

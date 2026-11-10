@@ -4,6 +4,12 @@ This suite separates **offline checks** from **model behavior evaluation**.
 Passing offline tests does not establish that an agent or client behaves
 correctly. Everything in the [fixture workspace](workspace/README.md) is synthetic.
 
+The opt-in [service-performance behavior cases](service-performance.md) add
+separate manual acceptance criteria for service defects, false positives,
+entry-point-first discovery, and the opt-in boundary. They are not included in
+the 20 call-accounting scenarios or their checker scores. No live service-mode
+results are claimed.
+
 ## Test strategy
 
 - Offline tier: Python 3.10+ standard-library `unittest`; no package installation,

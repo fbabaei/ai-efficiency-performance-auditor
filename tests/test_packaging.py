@@ -122,7 +122,8 @@ class PackagingTests(unittest.TestCase):
     def test_documentation_links_resolve(self) -> None:
         paths = [ROOT / "README.md", ROOT / "CHANGELOG.md"]
         paths.extend((ROOT / "docs").glob("*.md"))
-        paths.append(ROOT / "evaluations" / "README.md")
+        paths.extend((ROOT / "evaluations").glob("*.md"))
+        paths.extend((ROOT / ".github" / "skills").glob("*/SKILL.md"))
         for path in paths:
             text = path.read_text(encoding="utf-8")
             for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", text):
@@ -131,6 +132,64 @@ class PackagingTests(unittest.TestCase):
                 target = unquote(target.split("#", 1)[0])
                 with self.subTest(source=path.name, target=target):
                     self.assertTrue((path.parent / target).exists())
+
+    def test_service_skill_is_explicitly_opt_in_and_discoverable(self) -> None:
+        path = ROOT / ".github" / "skills" / "service-performance-review" / "SKILL.md"
+        text = path.read_text(encoding="utf-8")
+        self.assertTrue(text.startswith("---\n"))
+        header, body = text[4:].split("\n---\n", 1)
+        self.assertIn(f"name: {path.parent.name}", header.splitlines())
+        self.assertIn("disable-model-invocation: true", header.splitlines())
+        description = next(
+            line.removeprefix("description: ")
+            for line in header.splitlines() if line.startswith("description: ")
+        )
+        self.assertIsInstance(json.loads(description), str)
+        self.assertIn("explicitly asked", json.loads(description))
+        normalized = " ".join(body.split())
+        for requirement in (
+            "Do not execute commands",
+            "invoke other agents",
+            "call external services",
+            "only write exception",
+            "sanitization gates",
+            "including these skill reads",
+            "Async blocking",
+            "Clients and pools",
+            "Concurrency",
+            "Streaming",
+            "Storage",
+            "Resource lifecycle",
+            "latency",
+            "contention",
+            "unknown",
+            "Hypotheses stay unranked",
+            "six report sections",
+            "Never claim a performance improvement is validated without comparative evidence",
+        ):
+            with self.subTest(requirement=requirement):
+                self.assertIn(requirement, normalized)
+        agent = (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(".github/skills/service-performance-review/SKILL.md", agent)
+        self.assertIn("Do not silently broaden ordinary tool/model audits", agent)
+        self.assertIn("Rank demonstrated service defects without requiring avoidable", agent)
+
+    def test_entry_point_discovery_contract(self) -> None:
+        agent = (ROOT / ".github" / "agents" / "ai-efficiency-auditor.agent.md").read_text(
+            encoding="utf-8"
+        )
+        agent = " ".join(agent.split())
+        for requirement in (
+            "a supplied source entry point before enumerating source files",
+            "using exact paths or file-scoped searches",
+            "fits the remaining file budget",
+            "exceeds a budget still exhausts it",
+            "do not ignore surplus paths or restart the budget",
+        ):
+            with self.subTest(requirement=requirement):
+                self.assertIn(requirement, agent)
 
     def test_license_is_explicit(self) -> None:
         self.assertTrue((ROOT / "LICENSE").read_text(encoding="utf-8").startswith("MIT License"))

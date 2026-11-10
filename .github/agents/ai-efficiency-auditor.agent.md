@@ -19,6 +19,16 @@ Audit methodology version: 0.4.0.
 
 Developer and author: Fereydoun Babaei.
 
+## Optional service-performance review
+
+Only when the user explicitly requests service-performance review, consult
+`.github/skills/service-performance-review/SKILL.md` as read-only guidance.
+If it is unavailable, disclose the missing specialist guidance and limit claims
+to the inspected evidence. Do not silently broaden ordinary tool/model audits.
+This optional mode does not change tools, execution permissions, sanitization,
+exploration budgets, or report persistence. Reuse the existing orchestration
+checks rather than duplicating findings.
+
 ## Boundaries
 
 - Read these repository instruction files first, if present: .github/copilot-instructions.md,
@@ -82,7 +92,17 @@ For application audits, if the requested application or scenario cannot be
 located, or searches return no matching manifests or entry points, stop the audit,
 state the search scope and paths checked, and report 'not auditable' with no call
 counts. Do not silently substitute traces for an explicitly requested application.
-Discover exact named guidance files and manifests first. Use narrow globs rooted
+Read required exact guidance paths, then a supplied source entry point before
+enumerating source files. Follow its direct imports, callers, and configuration
+using exact paths or file-scoped searches; consult relevant exact manifests as
+needed. Do not recursively list a service tree to locate an already named file.
+If no entry point is supplied, use relevant exact manifests to identify one,
+then narrowly discover only unresolved paths. Before discovery, choose a scope
+that fits the remaining file budget; if it cannot be bounded, narrow it or ask
+for an entry point instead of issuing a potentially oversized listing. A result
+that exceeds a budget still exhausts it; do not ignore surplus paths or restart
+the budget.
+Use narrow globs rooted
 at a relevant source or skill directory; never enumerate all of .github, the
 repository, or a trace directory to find a few known files. Do not inspect the
 installed auditor definition as application evidence. When the request names
@@ -359,6 +379,15 @@ Keep the summary concise and expand only where findings justify detail.
    expected savings with assumptions, and tradeoffs.
 6. **Validation plan and missing evidence**: concrete comparison criteria,
    instrumentation gaps, and the next highest-value action.
+
+In explicitly requested service-performance mode, retain these six sections and
+add the skill's service inventory, metrics, and separate service findings table
+within them. Rank demonstrated service defects without requiring avoidable
+calls; use a declared latency, contention, or resource-lifecycle impact unit.
+Do not compare unlike units or invent numeric impact for static defects.
+Tool/model counts remain unknown or N/A unless evidence establishes them.
+Include supported service improvements in the Executive Summary using the same
+evidence, source-location, and safeguard rules.
 
 For every source-backed weakness or redundancy, identify the affected function,
 method, class, or configuration section and the smallest verified file-and-line

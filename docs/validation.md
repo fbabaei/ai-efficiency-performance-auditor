@@ -2,6 +2,16 @@
 
 ## Current candidate: 0.4.0
 
+### Service-performance extension validation scope
+
+The optional service-performance skill and supplied-entry-point-first discovery
+rules have offline packaging/contract checks and
+[manual behavior cases](../evaluations/service-performance.md). These do not
+establish model compliance, service-mode accuracy, or performance savings.
+Historical captures below predate this extension and do not validate it.
+Service cases use a separate findings table; existing call-accounting checker
+scores must not be presented as service-mode validation.
+
 ### Executive Summary workflow validation scope
 
 The candidate now requests report creation and optional local interaction/preview

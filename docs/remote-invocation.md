@@ -34,6 +34,13 @@ This repository does not create or modify any organization's configuration.
 Publishing an agent in a personal repository does not enable organization-wide
 discovery by itself.
 
+The optional [service-performance skill](../.github/skills/service-performance-review/SKILL.md)
+is distributed separately from the agent. Install its directory under
+`.github/skills/` in the application checkout and verify skill discovery in the
+chosen host; organization-level agent distribution alone does not install it.
+Request service-performance mode explicitly with a source entry point.
+It needs no command, delegation, or external-service tools.
+
 References:
 - [GitHub organization setup](https://docs.github.com/en/copilot/how-tos/administer-copilot/manage-for-organization/prepare-for-custom-agents)
 - [VS Code custom agents](https://code.visualstudio.com/docs/agent-customization/custom-agents)
