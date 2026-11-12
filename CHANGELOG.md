@@ -2,6 +2,17 @@
 
 ## 0.5.0 - Unreleased
 
+- Add opt-in change-impact-review for supplied diffs and named source snapshots,
+  bounded affected-path review, side-aware citations and evidence-backed
+  regression attribution. Preserve read-only inputs, no Git/network execution,
+  shared budgets and one report pair. Document usage, acceptance cases and
+  architecture status; declaration checks do not establish live model behavior.
+- Add opt-in recommendation-planning as a separate skill for evidence-linked
+  developer handoff cards, dependencies/blockers, effort rationale, safeguards,
+  proposed acceptance checks and rollback criteria. Preserve report-only writes,
+  supplied-report provenance and shared budgets; document module boundaries and
+  the unimplemented extension roadmap. Add declaration checks and manual
+  acceptance cases without claiming live validation or introducing a runner.
 - Rename the agent to AI Efficiency & Performance Auditor, its definition/CLI ID
   to `ai-efficiency-performance-auditor`, and the repository to
   `fbabaei/ai-efficiency-performance-auditor`. Update prompts, optional skill

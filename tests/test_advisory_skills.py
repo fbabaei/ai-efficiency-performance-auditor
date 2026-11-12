@@ -5,6 +5,36 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = {
+    "change-impact-review": (
+        "A PR URL or revision label alone is not review evidence",
+        "Do not fetch a PR, run Git, check out revisions",
+        "Do not apply the diff",
+        "Reject outside-workspace, traversal and ambiguous diff paths",
+        "a deleted-line number is not a candidate-source location",
+        "A diff hunk is supplied evidence, not independently verified source",
+        "Candidate-only defects have introduction unknown",
+        "Do not call an existing mechanism a new regression",
+        "No finding means no demonstrated regression in inspected scope",
+        "not proof that the PR is safe or the application is efficient",
+        "Incomplete hunks or missing dependencies mean partial coverage",
+        "Fewer calls alone do not prove improved quality",
+        "Do not load other skills unless the user explicitly requests their modes",
+        "one shared budget and one report pair",
+    ),
+    "recommendation-planning": (
+        "do not discover an application, inspect source, or open referenced traces",
+        "From supplied report; not reverified",
+        "Not provided in supplied report",
+        "unknown prerequisites block implementation readiness",
+        "Unproven changes remain unranked",
+        "effort is a separate scheduling aid",
+        "proposals requiring approval, not approved thresholds",
+        "Never label work implemented, resolved or validated from a plan alone",
+        "Do not load other skills unless the user explicitly requests their modes",
+        "share one budget and one report pair",
+        "not stable across audits",
+        "Do not create task files, patches, JSON, extra per-card reports or tickets",
+    ),
     "audit-comparison": (
         "two separate profiles with no improvement verdict or causal delta",
         "A zero baseline yields N/A percentage",

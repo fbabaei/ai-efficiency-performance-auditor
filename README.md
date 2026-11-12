@@ -82,6 +82,8 @@ permissions; they do not execute workloads, collect telemetry or modify code.
 | [audit-comparison](.github/skills/audit-comparison/SKILL.md) | Compare named baseline/candidate reports, existing source snapshots or sanitized trace sets; show matched deltas and quality limitations |
 | [context-retrieval-review](.github/skills/context-retrieval-review/SKILL.md) | Review history/context growth, retrieved-document versions, top-k/reranking, embedding reuse, repeated schemas and unused evidence |
 | [orchestration-efficiency-review](.github/skills/orchestration-efficiency-review/SKILL.md) | Quantify layered retries, fan-out, cache/coalescing eligibility, concurrency, critical paths and cancellation/deadline work |
+| [recommendation-planning](.github/skills/recommendation-planning/SKILL.md) | Turn scoped audit findings or named reports into developer handoff cards with safeguards, dependencies, acceptance checks and rollback criteria |
+| [change-impact-review](.github/skills/change-impact-review/SKILL.md) | Review supplied diffs or named source snapshots and affected call paths; distinguish introduced regressions, pre-existing defects and unknown attribution |
 
 Select **AI Efficiency & Performance Auditor** and name the mode and exact inputs. The agent
 loads only explicitly requested modes, discloses missing skill files and keeps
@@ -90,6 +92,17 @@ confounded inputs become separate profiles, omitted findings are not assumed
 resolved, and fewer calls alone does not establish improved quality or safety.
 See [usage and limitations](docs/agent-guide.md#optional-advisory-reviews) and
 [synthetic acceptance cases](evaluations/advisory-skills.md).
+
+For implementation-ready recommendations, install `recommendation-planning` and
+explicitly request it with a scoped audit or an exact existing report path.
+It proposes work; it does not modify code, create tickets or run tests.
+See the [modular design and extension roadmap](docs/agent-guide.md#modular-design-and-extension-roadmap)
+and [copy-and-paste planning prompt](docs/usage-prompts.md#recommendation-planning).
+
+For PR-focused review, install `change-impact-review` and supply an existing
+workspace diff, paste the changes in Chat, or name both source snapshots.
+A PR URL alone is insufficient: the auditor does not fetch changes or run Git.
+See the [change-review prompt](docs/usage-prompts.md#change-impact-review).
 
 Commit the copied files to your application repository to share the agent with
 that repository's contributors. Opening this distribution repository alone

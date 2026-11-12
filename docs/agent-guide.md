@@ -314,6 +314,89 @@ Executive Summary save/preview workflow. Combining requested modes does not
 permit duplicate findings, extra budgets or broader tools. Missing guidance
 is disclosed rather than claimed as covered.
 
+### Modular design and extension roadmap
+
+See the [Mermaid architecture diagrams](../.github/modernize/assessment/engines/facts/architecture-diagram.md)
+for the high-level module boundaries and detailed component relationships.
+
+Keep the core agent responsible for scope, evidence/privacy invariants, budgets,
+optional-mode routing and one consistent report pair. Specialized checklists and
+handoff formats belong in opt-in skills, not additional core workflow sections.
+Skills are instructions, not executable plugins or permission boundaries.
+Install only needed directories; explicitly request each mode to load it.
+Combined modes reuse inspected evidence and findings under one budget, not
+separate discovery passes or independently added savings.
+
+| Enhancement | Module boundary | Status |
+|---|---|---|
+| Recommendation cards and effort-aware handoff | `recommendation-planning` skill | Added; declaration checks and manual acceptance cases, no live behavior claim |
+| PR/diff efficiency review | Separate `change-impact-review` skill using supplied changes and affected call paths | Added; declaration checks and manual acceptance cases, no live behavior claim |
+| Missing telemetry and instrumentation advice | Separate `measurement-readiness` skill | Proposed, not implemented |
+| Finding-level optimization verification | Extend `audit-comparison`, rather than duplicate comparison rules | Proposed extension; existing comparison remains available |
+| Efficiency budgets and CI enforcement | Explicitly authorized companion runner for calculation/enforcement; skill for interpretation | Proposed, outside current auditor permissions |
+| Standard trace import | Companion adapters producing sanitized evidence with provenance | Proposed, not implemented |
+
+Preserve shared finding identity, provenance, unknowns and evidence semantics;
+do not add independent scoring systems per skill. Deterministic calculations,
+trace conversion, telemetry collection and benchmark execution belong in
+separately authorized tooling, never implicit skill actions. No runner or adapter
+is introduced by the recommendation-planning module.
+
+### Recommendation planning
+
+Install [recommendation-planning](../.github/skills/recommendation-planning/SKILL.md).
+Request it alongside an audit or name an exact existing report:
+
+> Use recommendation-planning on the supplied audit report only. Produce
+> implementation-ready cards with dependencies, safeguards, effort rationale,
+> proposed acceptance checks and rollback triggers. Do not re-audit the source
+> or treat reported locations and savings as independently verified.
+
+Cards link finding IDs to the smallest proposed correction. They retain exact
+verified sites or explicit supplied/unknown provenance, expected-effect units
+and assumptions, dependencies/blockers, safety contracts and readiness.
+Missing safety evidence blocks implementation readiness; quality-dependent
+hypotheses stay unranked. Effort is a separate scheduling aid, not a severity
+score, an invented delivery estimate or a reason to override evidence ranking.
+Supplied IDs are preserved; generated IDs are audit-local, not a cross-run
+matching guarantee. A plan alone never proves implementation or resolution.
+
+Cards appear in Proposed design; blocked hypotheses and evidence needs remain
+in Validation plan and missing evidence. The six sections and Executive Summary
+limits are unchanged. Named-report-only planning skips application discovery,
+source and trace reads; missing evidence remains missing. It creates no patches,
+tickets or per-card task files and executes no acceptance tests.
+
+### Change-impact review
+
+Install [change-impact-review](../.github/skills/change-impact-review/SKILL.md).
+Supply an exact workspace diff, paste it in Chat, or name baseline/candidate
+source snapshots already in the approved workspace. For example:
+
+> Explicitly use change-impact-review on the supplied diff only. Review the
+> changed request path for introduced efficiency regressions. Distinguish old
+> and new sides, pre-existing mechanisms and unknown attribution. Do not fetch
+> the PR, run Git, inspect other source or declare whole-application coverage.
+
+The skill follows only changed sites and necessary direct callers/dependencies,
+within the shared budget. Supplied-input-only requests prohibit additional
+source or trace inspection. Diff-backed citations identify side and hunk; they
+are not independently verified candidate-source locations. Outside-workspace,
+traversal and ambiguous paths are rejected before reads. Truncated, binary or
+unmapped changes remain explicit coverage gaps.
+
+Introduced regressions require baseline and candidate evidence of a new or
+amplified avoidable mechanism. Existing mechanisms remain pre-existing; a proven
+candidate defect with insufficient baseline has introduction unknown. Hypotheses
+remain unranked, and fewer calls alone do not establish quality-preserving
+improvement. No findings means no demonstrated regression in inspected scope,
+not PR approval or proof that the application is efficient.
+
+Combine with `recommendation-planning` only by explicitly requesting both modes;
+reuse the same finding IDs, evidence, budget and report pair. Neither module
+executes validation, modifies source, posts PR comments or creates tickets.
+Use the [copy-and-paste change-review prompt](usage-prompts.md#change-impact-review).
+
 ### Baseline/candidate comparison
 
 Install [audit-comparison](../.github/skills/audit-comparison/SKILL.md) including

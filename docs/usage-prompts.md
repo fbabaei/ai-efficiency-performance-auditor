@@ -7,9 +7,77 @@ inside that application repository, including any bundled references.
 See the [installation guide](../README.md#install-in-the-repository-you-want-to-audit).
 
 Copy one prompt below into Chat. Optionally add a known entry-point path and
-scenario to reduce discovery. Both prompts use source/configuration only:
+scenario to reduce discovery. The first-audit and deep-analysis prompts use source/configuration only:
 runtime traces are not needed. Analysis is advisory, with report-only writes;
 it does not execute the application or establish measured performance savings.
+
+For planning from an existing report rather than a new source audit, use the
+[recommendation-planning prompt](#recommendation-planning).
+
+## Recommendation planning
+
+Use this to turn an existing audit into a developer handoff without a new source
+audit. Requires `recommendation-planning`. Replace the report placeholder with
+an exact existing workspace path, or paste the report directly in Chat.
+
+```text
+Use recommendation-planning on this supplied report only:
+reports\<application>-audit-detailed-report.md
+
+Do not discover an application, inspect source or read traces to fill gaps.
+Treat reported findings and locations as supplied claims, not reverified evidence.
+Preserve finding IDs; label any new IDs as audit-local.
+
+For each supported mechanism, propose the smallest change with evidence and
+locations, dependencies/blockers, safeguards, expected-effect assumptions,
+effort with rationale or unknown, proposed acceptance checks and rollback triggers.
+Keep missing safety contracts blocked and unproven changes unranked in the
+validation plan. Do not invent savings or claim implementation or resolution.
+
+Keep the existing six sections. Put supported cards in Proposed design and
+summarize the highest-priority actions in the Executive Summary.
+Save one new report pair under reports/ without overwriting existing files.
+Ask before opening the summary preview. Do not edit code, create task files or
+tickets, run commands/tests, call external services or invoke other agents.
+```
+
+For cards alongside a new audit, append "Explicitly use recommendation-planning
+for supported findings" to either source-audit prompt below; install all skills
+that prompt requests. This does not add a separate audit or exploration budget.
+
+## Change-impact review
+
+Use this for a bounded PR/diff efficiency review. Requires `change-impact-review`.
+Replace the placeholder with an exact existing workspace diff, paste the diff
+in Chat, or name both baseline/candidate snapshot paths and their roles.
+A PR URL or branch name alone does not provide review evidence.
+
+```text
+Explicitly use change-impact-review on this supplied diff only:
+reviews\<change>.diff
+
+Review the changed AI request path for introduced repeated retrieval/inference,
+retry amplification, context growth, unused results and affected dependencies.
+Do not fetch a PR, run Git, apply the diff, inspect other source or read traces.
+Treat incomplete hunks and missing contracts as coverage gaps.
+
+Cite old/new sides and hunks without presenting them as reverified source.
+Distinguish introduced regressions, pre-existing mechanisms, candidate defects
+with introduction unknown, and unranked hypotheses. Preserve authorization,
+freshness, idempotency, output quality, safety checks and necessary recovery.
+Do not infer runtime savings or whole-PR safety from a static diff.
+
+Keep the six report sections and the existing Executive Summary limits.
+Propose the smallest correction and regression/quality checks; do not run them.
+Save one new report pair under reports/ without overwriting existing files.
+Ask before opening the summary preview. Do not edit code, create tickets,
+post PR comments, call external services or invoke other agents.
+```
+
+For source-backed follow-up, explicitly authorize exact local candidate and
+baseline paths plus the necessary direct dependencies. For developer handoff,
+also explicitly request `recommendation-planning` and install that skill;
+both modes share the evidence budget, finding IDs and report pair.
 
 ## Focused first audit
 
