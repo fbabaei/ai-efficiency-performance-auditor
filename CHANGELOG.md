@@ -2,6 +2,11 @@
 
 ## 0.5.0 - Unreleased
 
+- Complete the beginner prompt catalog with a goal-based index, consistent
+  prerequisites/inputs/outputs/next steps, a base-only starting prompt and
+  standalone retrieval, orchestration, service, before/after, trace-only and
+  existing-report summary templates. Preserve opt-in modes, sanitization,
+  source/report-only boundaries and offline-tool execution separation.
 - Complete the remaining modular advisory extensions: opt-in measurement-readiness
   and efficiency-budget-review skills, plus finding-level verification rules
   within audit-comparison. Add separately invoked Python standard-library

@@ -3,6 +3,9 @@
 Evidence-backed review of AI application efficiency, performance and reliability
 safeguards.
 
+**New here?** Start with the [plain-language quick start](docs/quick-start.md):
+install the agent, review one flow, then add optional modules when needed.
+
 **Developer and author:** Fereydoun Babaei.
 
 [Repository](https://github.com/fbabaei/ai-efficiency-performance-auditor)
@@ -40,9 +43,10 @@ correctness or security.
 
 ## Files
 
+- [Beginner quick start and simple feature explanation](docs/quick-start.md)
 - [Agent definition](.github/agents/ai-efficiency-performance-auditor.agent.md)
 - [Detailed documentation](docs/agent-guide.md)
-- [Copy-and-paste first-audit and deep-analysis prompts](docs/usage-prompts.md)
+- [Choose-your-goal prompt catalog](docs/usage-prompts.md#choose-your-goal)
 - [CLI, organization sharing, and remote execution](docs/remote-invocation.md)
 - [Synthetic evaluation suite](evaluations/README.md)
 - [Prioritized v0.5.0 acceptance backlog](docs/v0.5.0-backlog.md)
