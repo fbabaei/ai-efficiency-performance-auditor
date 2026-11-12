@@ -1,0 +1,13 @@
+{
+  "schema": "auditor-budgets/1",
+  "approved": true,
+  "scenario": "search",
+  "quality_contract_id": "synthetic-quality-1",
+  "currency": "USD",
+  "limits": [
+    {"metric": "success_rate", "min": 0.95},
+    {"metric": "latency_p95_ms", "max": 15},
+    {"metric": "cost_per_successful_task", "max": 0.025},
+    {"metric": "tool_attempts_per_request", "max_relative_increase": 0.1}
+  ]
+}

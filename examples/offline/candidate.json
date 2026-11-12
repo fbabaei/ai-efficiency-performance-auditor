@@ -1,0 +1,31 @@
+{
+  "schema": "auditor-measurements/1",
+  "scenario": "search",
+  "workload_id": "synthetic-dataset-1",
+  "quality_contract_id": "synthetic-quality-1",
+  "conditions_id": "synthetic-conditions-1",
+  "currency": "USD",
+  "coverage": "complete",
+  "requests": [
+    {"id":"r01","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r02","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r03","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r04","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r05","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r06","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r07","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r08","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r09","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r10","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r11","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r12","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r13","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r14","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r15","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r16","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r17","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r18","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r19","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02},
+    {"id":"r20","success":true,"latency_ms":10,"tool_attempts":2,"model_attempts":1,"input_tokens":12,"output_tokens":4,"cost":0.02}
+  ]
+}

@@ -2,6 +2,14 @@
 
 ## 0.5.0 - Unreleased
 
+- Complete the remaining modular advisory extensions: opt-in measurement-readiness
+  and efficiency-budget-review skills, plus finding-level verification rules
+  within audit-comparison. Add separately invoked Python standard-library
+  offline OTLP JSON metadata import and approved budget/regression gates, with
+  sanitized-input confirmation, explicit unknowns, task-success guardrails,
+  failed-request cost accounting, exclusive output creation and CI exit codes.
+  Document versioned contracts, synthetic examples and acceptance coverage;
+  no telemetry collection, benchmark execution or new live agent claim.
 - Add opt-in change-impact-review for supplied diffs and named source snapshots,
   bounded affected-path review, side-aware citations and evidence-backed
   regression attribution. Preserve read-only inputs, no Git/network execution,

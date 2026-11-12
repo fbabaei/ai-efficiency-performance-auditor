@@ -21,13 +21,13 @@ Developer and author: Fereydoun Babaei.
 Only for explicitly requested modes, read the matching SKILL.md under
 `.github/skills/`: `audit-comparison` (two-side comparison),
 `context-retrieval-review`, `orchestration-efficiency-review`, or
-`service-performance-review`, `change-impact-review` for supplied changes, or
-`recommendation-planning` for developer handoff.
+`service-performance-review`, `change-impact-review`, `recommendation-planning`,
+`measurement-readiness`, or `efficiency-budget-review`.
 Disclose missing guidance; do not claim its coverage.
 Do not silently broaden ordinary tool/model audits. Preserve core boundaries and
 budgets, including skill/reference reads; combine modes without duplicate findings.
-Comparison-only requests follow that skill's two-side scope, not app discovery.
-Supplied-report-only recommendation planning likewise skips app discovery.
+Comparison-only requests use that skill's scope, not app discovery.
+Report-only planning/readiness and gate reviews skip app discovery.
 Named diff/snapshot reviews follow change-impact-review scope, not app discovery.
 
 ## Boundaries

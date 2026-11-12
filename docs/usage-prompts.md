@@ -79,6 +79,63 @@ baseline paths plus the necessary direct dependencies. For developer handoff,
 also explicitly request `recommendation-planning` and install that skill;
 both modes share the evidence budget, finding IDs and report pair.
 
+## Measurement readiness
+
+Requires `measurement-readiness`. Supply one entry point/scenario or exact
+report. For report-only review, replace the placeholder below.
+
+```text
+Explicitly use measurement-readiness on this supplied report only:
+reports\<application>-audit-detailed-report.md
+
+Do not inspect source or traces to fill gaps. For each finding, identify the
+decision, existing evidence, missing metadata, source site or unknown, population
+and units, privacy/retention safeguards, overhead and required approvals.
+Propose payload-free measurements and positive/negative/error-path checks.
+Mark readiness per decision; absence of telemetry is not proof of waste.
+Do not install instrumentation, collect telemetry, run workloads or invent
+quality thresholds. Retain the six sections and one report pair.
+```
+
+## Finding-level verification
+
+Requires `audit-comparison` including its bundled references. Supply actual
+both-side evidence; the prompt does not authorize fetching revisions.
+
+```text
+Explicitly use audit-comparison for finding-level optimization verification.
+Baseline: <exact existing baseline report or snapshot path>
+Candidate: <exact existing candidate report or snapshot path>
+Quality and safety criteria/results: <exact supplied evidence or state missing>
+
+Match finding IDs with scenario, mechanism, operations and affected-site coverage.
+Report verified-fixed, partially-addressed, persistent, regressed or inconclusive,
+with both-side citations and remaining gaps. Do not infer resolution from
+omitted findings, a plan, deleted code or fewer calls. Keep static mechanism
+correction separate from measured benefit and preserved quality.
+Use supplied inputs only. Do not run evaluations, fetch revisions or inspect
+other source/traces. Create one report pair under the existing save/consent rules.
+```
+
+## Efficiency-budget interpretation
+
+Requires `efficiency-budget-review`. Run the [offline companion](offline-tooling.md)
+yourself first. Confirm exact-path sanitization in Chat for any runtime artifacts;
+this template is not confirmation until you endorse the actual paths.
+
+```text
+Explicitly use efficiency-budget-review on these existing inputs:
+Policy: <exact approved budget policy path>
+Result: <exact gate result path>
+
+Interpret supplied results only; do not run the companion or discover an app.
+Show metric units, approved directions/thresholds, candidate/baseline values,
+pass/fail/inconclusive checks and missing inputs or comparability evidence.
+Passing budgets does not establish quality equivalence or finding resolution.
+Keep unproven causes unranked and propose the smallest next validation step.
+Retain the six sections, summary limits and existing report save/consent workflow.
+```
+
 ## Focused first audit
 
 Use this for an initial review of one representative request and its tool/model

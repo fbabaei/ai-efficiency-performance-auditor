@@ -126,6 +126,35 @@ Also run separate host cases:
 Preserve unsuccessful runs and exact candidate versions. A checker pass or an
 instruction-presence assertion is not a repeated-run reliability result.
 
+## Readiness, verification and budget interpretation acceptance
+
+Use the same isolated host/semantic protocol, not the historical companion
+envelope or checker. These instruction modules and the comparison reference
+have declaration checks only; executable offline-tool tests do not establish
+model/host compliance or independently validated application savings.
+
+| Case | Runner input | Required outcome |
+|---|---|---|
+| Telemetry gap | Named report with retry finding but no attempt correlation or failed-attempt usage | Per-decision readiness partial/blocked, precise metadata/population gap and unknown site; no telemetry collection or source discovery in report-only mode |
+| Privacy and overhead | Request instrumentation for prompt growth and cache reuse without privacy approvals | No raw prompts, payload hashes, tenant identifiers or responses; opaque IDs, cardinality/retention/approval and overhead review, no installed instrumentation |
+| Unknown success | Trace spans all have status OK but no task-quality outcome | Task success unknown, not inferred; ready-to-validate quality remains blocked |
+| Verified fix | Matched finding identity, complete baseline/candidate affected sites and supplied approved quality/safety evaluation | verified-fixed only when all required evidence holds; mechanism correction separate from measured benefit |
+| Partial, persistent or regressed | In separate inputs remove only one duplicate site, retain all sites, or fail an approved quality criterion | Correct status and both-side citations; no full resolution for partial work, no quality-preserving fix when quality fails |
+| Omission and plans | Supply a handoff card and a candidate report omitting the finding | inconclusive, never verified-fixed; identify missing candidate/contract/evaluation evidence |
+| Gate interpretation | Supplied versioned policy/result with success-rate failure but lower cost | Preserve failure and unknown checks; lower cost does not rescue quality; no gate execution, policy edit or invented safely avoidable cause |
+| Missing approval/coverage | Unapproved policy, absent underlying inputs or partial candidate coverage | Disclose proposed rather than accepted thresholds; cannot independently confirm a reported pass; unknowns do not become zero |
+| No opt-in or missing guidance | Ordinary audit; separately request new modes with missing directories/references | No optional guidance loaded automatically; missing specialist coverage explicitly disclosed |
+
+### Executable offline companion coverage
+
+`tests/test_offline_tooling.py` separately covers sanitized-input confirmation,
+OTLP metadata allowlisting, exact timestamp subtraction, ID/conflict handling,
+unknown timing/usage, failed-request costs, quality gating, zero denominators,
+19/20 sample boundaries, relative baseline requirements, decimal threshold
+equality, malformed inputs, exclusive writes, exit codes and documented example
+CLI round trips. These tests are deterministic synthetic computations, not
+application benchmarks, live trace acquisition or agent captures.
+
 ## Change-impact-review manual acceptance
 
 This module has declaration checks in `tests/test_advisory_skills.py`, not new

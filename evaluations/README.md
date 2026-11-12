@@ -48,6 +48,12 @@ context/retrieval and orchestration inputs, selected companion checks and manual
 acceptance. Its fixtures/oracles are not live-model results; historical
 20-scenario, trace-only, reporting and review-output schemas remain unchanged.
 
+The [offline companion](../docs/offline-tooling.md) has independent executable
+tests in [test_offline_tooling.py](../tests/test_offline_tooling.py). Run
+`python -m unittest discover -s tests -p test_offline_tooling.py -v`.
+They exercise import, arithmetic, policy decisions and CLI examples; they do not
+score agent behavior, run benchmarks or imply live telemetry integration.
+
 ## Review-driven conformance cases
 
 These extend the existing suite; the review's claim that there was no suite was

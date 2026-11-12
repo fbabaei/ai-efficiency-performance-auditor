@@ -84,6 +84,8 @@ permissions; they do not execute workloads, collect telemetry or modify code.
 | [orchestration-efficiency-review](.github/skills/orchestration-efficiency-review/SKILL.md) | Quantify layered retries, fan-out, cache/coalescing eligibility, concurrency, critical paths and cancellation/deadline work |
 | [recommendation-planning](.github/skills/recommendation-planning/SKILL.md) | Turn scoped audit findings or named reports into developer handoff cards with safeguards, dependencies, acceptance checks and rollback criteria |
 | [change-impact-review](.github/skills/change-impact-review/SKILL.md) | Review supplied diffs or named source snapshots and affected call paths; distinguish introduced regressions, pre-existing defects and unknown attribution |
+| [measurement-readiness](.github/skills/measurement-readiness/SKILL.md) | Identify missing metadata, coverage and quality evidence; propose payload-free instrumentation without installing it |
+| [efficiency-budget-review](.github/skills/efficiency-budget-review/SKILL.md) | Interpret supplied approved budget/gate results and their quality, comparability and coverage limitations |
 
 Select **AI Efficiency & Performance Auditor** and name the mode and exact inputs. The agent
 loads only explicitly requested modes, discloses missing skill files and keeps
@@ -103,6 +105,26 @@ For PR-focused review, install `change-impact-review` and supply an existing
 workspace diff, paste the changes in Chat, or name both source snapshots.
 A PR URL alone is insufficient: the auditor does not fetch changes or run Git.
 See the [change-review prompt](docs/usage-prompts.md#change-impact-review).
+
+For finding-level verification, explicitly request it through `audit-comparison`;
+its bundled reference distinguishes verified-fixed, partially-addressed,
+persistent, regressed and inconclusive findings without inferring resolution
+from a plan or omitted finding.
+
+### Offline companion tools
+
+Developers or separately authorized CI runners can use the Python 3.10+
+standard-library [offline tools](docs/offline-tooling.md) to import
+**already-sanitized OTLP JSON** into metadata-only trace evidence and check
+approved budgets over supplied per-request measurements. Includes failed-request
+costs, minimum task success, baseline regression caps, and explicit
+pass/fail/invalid/inconclusive exit codes.
+
+These tools do not collect telemetry, run application workloads or benchmarks,
+call external services, or change the auditor's permissions. Trace import does
+not automatically infer request counts, task success or gate-ready measurements.
+See the [synthetic examples](examples/offline/) and
+[new module prompts](docs/usage-prompts.md#measurement-readiness).
 
 Commit the copied files to your application repository to share the agent with
 that repository's contributors. Opening this distribution repository alone
@@ -198,8 +220,8 @@ read/search-only allowlist and capture reports with the runner; no preview opens
 
 Core auditing requires no scripts, service credentials, or MCP servers.
 Automatic preview requires a compatible local host tool. The repository's
-optional evaluation checker uses Python 3.10+ and its standard
-library; it is run by a maintainer, not by the auditor. The optional service
+optional evaluation checkers and offline companion use Python 3.10+ and its
+standard library; they run outside the auditor. The optional service
 skill is framework-neutral; framework-specific skills are not included. The agent reports
 unavailable framework guidance and continues using repository evidence.
 

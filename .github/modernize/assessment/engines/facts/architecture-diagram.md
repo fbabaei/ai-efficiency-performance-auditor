@@ -1,15 +1,16 @@
 # Architecture Diagram
 
-Proposed modular architecture for the AI Efficiency & Performance Auditor.
-This is a design view, not a deployed system or a claim that proposed modules
-exist. Skills are selectively loaded instructions in one auditor session,
+Modular architecture for the AI Efficiency & Performance Auditor and its
+offline companion. This is a component view, not a deployed service or proof
+of live agent behavior. Skills are selectively loaded instructions in one auditor session,
 not independent agents, services or executable plugins.
 
 ## Application Architecture
 
 Solid arrows show existing architectural relationships; dotted arrows show
-proposed additions. Existing includes the added recommendation-planning and
-change-impact-review skills, whose live behavior is not yet validated.
+future additions. Added skills have declaration/manual coverage, not new live
+validation. The companion handles supplied files only; collection and application
+workload execution remain outside the approved offline scope.
 
 <!-- mermaid-checked: no \n, no em-dash/en-dash, no {} in labels, subgraphs are id["label"], arrows are -->|"label"|, all subgraphs closed by end, ids unique -->
 ```mermaid
@@ -27,19 +28,20 @@ flowchart TD
         AComparison["Existing audit-comparison"]
         APlanning["Added recommendation-planning"]
         AChange["Added change-impact-review"]
-        AMeasurement["Proposed measurement-readiness"]
-        AVerification["Proposed finding-verification extension"]
-        ABudgetAdvice["Proposed efficiency-budget interpretation"]
+        AMeasurement["Added measurement-readiness"]
+        AVerification["Added finding-verification reference"]
+        ABudgetAdvice["Added efficiency-budget-review"]
     end
 
     AReports["One detailed audit and one Executive Summary"]
 
-    subgraph ATooling["Proposed separately authorized companion tooling"]
-        AAdapters["Sanitized trace adapters"]
-        ARunner["Measurement and benchmark runner"]
+    subgraph ATooling["Offline companion with separate authorization"]
+        AAdapters["OTLP JSON metadata adapter"]
+        ARunner["Offline CLI over supplied measurements"]
         AGates["Deterministic budget and regression gates"]
         AArtifacts["Provenanced evidence and check results"]
     end
+    ALive["Future telemetry and benchmark execution"]
 
     AUser -->|"invoke auditor"| ACoordinator
     AEvidence -->|"scoped read-only evidence"| ACoordinator
@@ -47,20 +49,22 @@ flowchart TD
     ACoordinator -->|"load only when requested"| AComparison
     ACoordinator -->|"load only when requested"| APlanning
     ACoordinator -->|"load only when requested"| AChange
-    ACoordinator -.->|"future explicit opt-in"| AMeasurement
-    AComparison -.->|"extend rather than duplicate"| AVerification
-    ACoordinator -.->|"future explicit opt-in"| ABudgetAdvice
+    ACoordinator -->|"load only when requested"| AMeasurement
+    AComparison -->|"only for requested verification"| AVerification
+    ACoordinator -->|"load only when requested"| ABudgetAdvice
     ASkills -->|"contribute under core rules"| AReporting
     AReporting -->|"report-only new Markdown files"| AReports
 
-    AUser -.->|"separate tooling authorization"| AAdapters
-    AUser -.->|"separate execution authorization"| ARunner
-    AUser -.->|"approved budgets and CI policy"| AGates
-    AAdapters -.->|"normalized eligible evidence"| AArtifacts
-    ARunner -.->|"measurements and quality results"| AArtifacts
-    AArtifacts -.->|"comparable supplied measurements"| AGates
-    AGates -.->|"explicit pass, fail or inconclusive"| AArtifacts
-    AArtifacts -.->|"user supplies exact eligible paths"| AEvidence
+    AUser -->|"exact sanitized input authorization"| AAdapters
+    AUser -->|"separate command authorization"| ARunner
+    AUser -->|"approved budgets"| AGates
+    AUser -->|"supplied per-request measurements"| AArtifacts
+    AAdapters -->|"metadata only, no request rollup"| AArtifacts
+    AArtifacts -->|"named measurement inputs"| ARunner
+    ARunner -->|"derive metrics and check thresholds"| AGates
+    AGates -->|"pass, fail or inconclusive results"| AArtifacts
+    AArtifacts -->|"user supplies exact eligible paths"| AEvidence
+    AUser -.->|"not implemented or approved here"| ALive
 ```
 
 ### Technology Stack Summary
@@ -72,17 +76,18 @@ flowchart TD
 | Analysis modules | Opt-in Markdown SKILL.md directories | Repository revision | Specialized analysis and handoff instructions, no new tools |
 | Evidence semantics | Internal advisory evidence and Markdown contracts | advisory-evidence/1; advisory-markdown/1 | Consistent provenance, units, unknowns and non-overlapping findings |
 | Output | Markdown | Not applicable | One detailed report and one bounded Executive Summary |
-| Companion tooling | Proposed adapters, runner and CI checks | Not implemented | Authorized acquisition, normalization, calculation and enforcement |
+| Companion tooling | Python standard-library adapter and gate CLI | auditor-traces/1; auditor-measurements/1; auditor-budgets/1; auditor-gate/1 | Offline supplied-evidence import and calculation; no acquisition or workloads |
 
 ### Data Storage & External Services
 
 The auditor reads authorized workspace evidence and creates new report Markdown
 under the existing no-overwrite workflow. No application database, telemetry
 backend or direct external-service connection is required or introduced.
-Future companion tooling may acquire measurements only through separately
-approved access; the auditor does not invoke that tooling. Tooling must establish
-sanitization and provenance before artifacts become eligible audit evidence.
-An adapter does not by itself establish that its input is safe to read.
+The companion requires confirmation of already-sanitized OTLP input and copies
+allowlisted metadata only. It separately checks approved budgets over prepared
+per-request measurements; it does not infer request populations from spans.
+The auditor does not invoke the companion. Neither an output marker nor an
+adapter establishes input privacy or overrides the core evidence eligibility gate.
 
 ### Key Architectural Decisions
 
@@ -90,8 +95,9 @@ An adapter does not by itself establish that its input is safe to read.
   instructions load only for explicitly requested modes. Combining modes adds
   neither permissions nor exploration budgets.
 - Keep execution separate: skills recommend experiments and instrumentation;
-  separately authorized tooling performs acquisition, benchmarking and CI
-  enforcement. No core-to-runner execution edge is proposed.
+  the authorized offline companion only imports supplied evidence and computes
+  CI-friendly gate results. No collection, benchmarking, installed CI integration
+  or core-to-runner execution edge is introduced.
 - Keep evidence honest: supplied reports are attributed rather than reverified,
   hypotheses stay unranked, and fewer calls alone do not prove improved quality.
 
@@ -123,9 +129,9 @@ flowchart LR
         CCompare["Baseline and candidate comparison"]
         CPlan["Recommendation cards and developer handoff"]
         CDiff["Added supplied-diff review"]
-        CMeasure["Proposed telemetry-gap advice"]
-        CVerify["Proposed finding-verification extension"]
-        CBudget["Proposed budget-result interpretation"]
+        CMeasure["Added telemetry-gap advice"]
+        CVerify["Added finding-verification reference"]
+        CBudget["Added budget-result interpretation"]
     end
 
     subgraph COutput["Shared report composition"]
@@ -146,19 +152,19 @@ flowchart LR
     CLoader -->|"when requested"| CCompare
     CLoader -->|"when requested"| CPlan
     CLoader -->|"when requested"| CDiff
-    CLoader -.->|"future opt-in"| CMeasure
-    CLoader -.->|"future opt-in"| CBudget
-    CCompare -.->|"reuse comparison rules"| CVerify
+    CLoader -->|"when requested"| CMeasure
+    CLoader -->|"when requested"| CBudget
+    CCompare -->|"only for requested verification"| CVerify
     CLedger -->|"reuse evidence within one budget"| CModules
     CReview -->|"supported mechanisms"| CFindings
     CCompare -->|"qualified deltas and finding status"| CFindings
     CDiff -->|"scoped change findings"| CFindings
-    CVerify -.->|"evidence-backed status"| CFindings
+    CVerify -->|"evidence-backed status"| CFindings
     CFindings -->|"link original finding IDs"| CPlan
     CPlan -->|"supported cards"| CDesign
     CPlan -->|"blockers and proposed checks"| CValidation
-    CMeasure -.->|"missing measurements"| CValidation
-    CBudget -.->|"qualified gate interpretation"| CValidation
+    CMeasure -->|"missing measurements"| CValidation
+    CBudget -->|"qualified gate interpretation"| CValidation
     CGuards -->|"constrain report claims and writes"| CSave
     CFindings -->|"ranked evidence"| CSave
     CDesign -->|"proposed changes"| CSave
@@ -177,9 +183,9 @@ flowchart LR
 | Audit comparison | Skills | Existing optional module | Establish comparability and qualified deltas; no resolution from omitted findings |
 | Recommendation planning | Skills | Added optional module | Smallest proposed change, dependencies, effort rationale, safeguards, acceptance and rollback |
 | Change-impact review | Skills | Added optional module | Analyze supplied changes and affected call paths without a whole-app re-audit |
-| Measurement readiness | Skills | Proposed new module | Identify telemetry gaps and advise on payload-free instrumentation without installing it |
-| Finding verification | Comparison | Proposed extension | Verify individual findings using matched candidate evidence and preserved quality contracts |
-| Efficiency-budget interpretation | Skills | Proposed module | Explain separately computed results against approved limits, including inconclusive outcomes |
+| Measurement readiness | Skills | Added optional module | Identify telemetry gaps and advise on payload-free instrumentation without installing it |
+| Finding verification | Comparison | Added opt-in reference | Verify individual findings using matched candidate evidence and approved quality/safety results |
+| Efficiency-budget interpretation | Skills | Added optional module | Explain separately computed results against approved limits, including inconclusive outcomes |
 | Evidence-linked findings | Reporting | Existing shared method | Link mechanisms and IDs; avoid duplicate findings and overlapping benefit claims |
 | Proposed design and validation plan | Reporting | Existing sections with added cards | Keep supported changes separate from blocked hypotheses and unapproved thresholds |
 | Report persistence | Reporting | Existing workflow | Create one no-overwrite report pair; read back; preview only after explicit consent |
@@ -191,3 +197,5 @@ not a filesystem sandbox or a guarantee of host enforcement.
 
 See the [extension roadmap](../../../../../docs/agent-guide.md#modular-design-and-extension-roadmap)
 and [recommendation-planning usage](../../../../../docs/usage-prompts.md#recommendation-planning).
+The [offline companion guide](../../../../../docs/offline-tooling.md) defines
+supported formats, limitations, approved-budget policies and CI exit codes.

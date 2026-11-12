@@ -331,16 +331,19 @@ separate discovery passes or independently added savings.
 |---|---|---|
 | Recommendation cards and effort-aware handoff | `recommendation-planning` skill | Added; declaration checks and manual acceptance cases, no live behavior claim |
 | PR/diff efficiency review | Separate `change-impact-review` skill using supplied changes and affected call paths | Added; declaration checks and manual acceptance cases, no live behavior claim |
-| Missing telemetry and instrumentation advice | Separate `measurement-readiness` skill | Proposed, not implemented |
-| Finding-level optimization verification | Extend `audit-comparison`, rather than duplicate comparison rules | Proposed extension; existing comparison remains available |
-| Efficiency budgets and CI enforcement | Explicitly authorized companion runner for calculation/enforcement; skill for interpretation | Proposed, outside current auditor permissions |
-| Standard trace import | Companion adapters producing sanitized evidence with provenance | Proposed, not implemented |
+| Missing telemetry and instrumentation advice | Separate `measurement-readiness` skill | Added; declaration/manual cases, not telemetry collection |
+| Finding-level optimization verification | `audit-comparison` with opt-in verification reference | Added decision rules; live semantic validation remains |
+| Efficiency budgets and CI enforcement | Offline companion gate plus `efficiency-budget-review` skill | Added deterministic checks and CI exit codes; no CI integration installed |
+| Standard trace import | Offline OTLP JSON metadata adapter | Added; exact sanitization confirmation required; no collection or automatic request rollup |
 
 Preserve shared finding identity, provenance, unknowns and evidence semantics;
 do not add independent scoring systems per skill. Deterministic calculations,
 trace conversion, telemetry collection and benchmark execution belong in
 separately authorized tooling, never implicit skill actions. No runner or adapter
-is introduced by the recommendation-planning module.
+is introduced by the recommendation-planning module. The separate offline
+companion now implements import and calculation only; workload execution,
+telemetry acquisition and benchmark-running remain outside approved scope.
+See [offline contracts, examples and CI usage](offline-tooling.md).
 
 ### Recommendation planning
 
@@ -397,6 +400,34 @@ reuse the same finding IDs, evidence, budget and report pair. Neither module
 executes validation, modifies source, posts PR comments or creates tickets.
 Use the [copy-and-paste change-review prompt](usage-prompts.md#change-impact-review).
 
+### Measurement readiness
+
+Install [measurement-readiness](../.github/skills/measurement-readiness/SKILL.md).
+Name the scenario, entry point or exact audit report and ask which metadata is
+missing to validate its findings. The skill maps decisions to missing IDs,
+timing, usage, completion/consumption and quality evidence, source sites or
+unknowns, privacy controls and approval needs. Report-only requests do not
+silently re-audit source.
+
+Readiness is per decision: ready, partial or blocked. Schema completeness is not
+proof of representative sampling, quality or safe reuse. No raw prompt/response
+logging, sensitive hashes, installation, collection or workload execution occurs.
+Instrumentation proposals and unapproved thresholds remain in Validation plan.
+
+### Efficiency-budget interpretation
+
+Install [efficiency-budget-review](../.github/skills/efficiency-budget-review/SKILL.md).
+Explicitly supply approved policy and result paths from the
+[offline companion](offline-tooling.md); apply the usual exact-path runtime
+sanitization gates before reads. The skill explains each pass/fail/inconclusive
+check without invoking tools, editing policies, enforcing CI or inferring that
+budget violations prove safely avoidable work.
+
+Approved task-success thresholds guard cost/latency decisions but do not prove
+complete safety or quality equivalence. Missing/partial populations, incomplete
+usage, zero denominators and unmatched conditions remain unknown. Human approval
+and data completeness are attestations, not independently established by JSON.
+
 ### Baseline/candidate comparison
 
 Install [audit-comparison](../.github/skills/audit-comparison/SKILL.md) including
@@ -424,6 +455,15 @@ present two profiles without an improvement/causal-delta claim.
 Improved/regressed/mixed/inconclusive decisions need approved directions and
 quality/safety margins. Supplied-report claims are not independently validated.
 One comparison creates one report pair, not separate artifacts for each side.
+
+For explicitly requested finding-level verification, the comparison skill also
+loads [its decision reference](../.github/skills/audit-comparison/references/finding-verification.md).
+It matches IDs with mechanism/scenario/operation evidence, not prose alone, then
+reports verified-fixed, partially-addressed, persistent, regressed or inconclusive.
+Verified-fixed requires complete affected-site evidence, preserved contracts and
+matched evaluation satisfying approved quality/safety criteria; supplied reports
+support attributed claims only. A static correction and measured benefit are
+separate decisions. No issue database or cross-run ID guarantee is introduced.
 
 ### Context and retrieval
 

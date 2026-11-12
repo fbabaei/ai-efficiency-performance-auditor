@@ -83,6 +83,13 @@ Resolution requires direct candidate evidence of removed mechanism and preserved
 contract; smaller scope or a missing finding is not resolution. Cite both sides.
 Do not double-count linked model/tool savings or overlapping findings.
 
+For explicitly requested finding-level optimization verification, also read
+[the verification decision rules](./references/finding-verification.md).
+Track verified-fixed, partially-addressed, persistent, regressed or inconclusive
+with both-side mechanism/coverage evidence and approved quality/safety results.
+Do not infer verified-fixed from a plan, omitted finding or fewer calls.
+Ordinary comparisons retain their existing status vocabulary.
+
 ## 4. Report a qualified decision
 
 Retain six sections. Put provenance/comparability in Verdict, linked inventories

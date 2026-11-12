@@ -5,6 +5,23 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILLS = {
+    "measurement-readiness": (
+        "absence of telemetry does not prove a defect",
+        "Span status is not task success",
+        "Never recommend logging raw prompts",
+        "Do not hash sensitive payloads",
+        "propose thresholds for approval, not as requirements",
+        "Cost per successful task includes costs of failed requests",
+        "the auditor never runs it",
+    ),
+    "efficiency-budget-review": (
+        "Missing approval means proposed thresholds, not accepted requirements",
+        "Missing policy or input prevents independent confirmation",
+        "user attestations, not a causal experiment",
+        "Budget violations are observations, not proof of safely avoidable work",
+        "Passing budgets is not finding resolution",
+        "No CI configuration, policy edits, JSON files or gate execution",
+    ),
     "change-impact-review": (
         "A PR URL or revision label alone is not review evidence",
         "Do not fetch a PR, run Git, check out revisions",
@@ -154,6 +171,22 @@ class AdvisorySkillTests(unittest.TestCase):
             "Deadlines and cancellation", "remaining retry/backoff budget",
             "accepted durable jobs", "independently consumed results",
             "Missing timestamps/correlation",
+        ):
+            with self.subTest(requirement=requirement):
+                self.assertIn(requirement, body)
+
+    def test_finding_verification_requires_candidate_and_quality_evidence(self) -> None:
+        body = " ".join(
+            (ROOT / ".github" / "skills" / "audit-comparison" / "references" / "finding-verification.md")
+            .read_text(encoding="utf-8").split()
+        )
+        for requirement in (
+            "verified-fixed", "partially-addressed", "persistent", "regressed", "inconclusive",
+            "Unknowns take precedence over verified-fixed",
+            "a recommendation card or code deletion alone never proves resolution",
+            "Supplied reports support attributed status only",
+            "Proposed acceptance margins are not approved thresholds",
+            "do not rewrite historical report/checker schemas",
         ):
             with self.subTest(requirement=requirement):
                 self.assertIn(requirement, body)
