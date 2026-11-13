@@ -31,6 +31,19 @@ the same auditor agent; skills are optional checklists, not separate agents.
 | Offline tooling | Calculate approved budget checks | [Gate command](offline-tooling.md#evaluate-approved-budgets) | Run Python companion yourself |
 | Results | Understand an existing gate result | [Efficiency-budget interpretation](#efficiency-budget-interpretation) | `efficiency-budget-review` |
 
+## Optional editable insertion
+
+Instead of copying a template, install the separate
+[Auditor Prompt Picker extension](prompt-picker.md). Open **Auditor: Insert Prompt**
+from the Command Palette and type a picker name such as `/audit-start` or
+`/audit-context`. Select it and confirm replacement of any existing Chat draft.
+The full template is inserted as editable, unsent text; edit its inputs and send
+it yourself. The guide lists all 14 names and installation/host-check steps.
+
+Picker names are not native Copilot slash commands. Agent selection, required
+skills, input safety and attachments remain your responsibility. The extension
+does not expand typing directly in Copilot's input or execute a prompt.
+
 ## Before you paste
 
 - Replace every `<placeholder>` with a real, exact workspace path or value.

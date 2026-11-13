@@ -1,0 +1,5 @@
+scripts/**
+test/**
+src/catalog.js
+node_modules/**
+*.vsix

@@ -64,6 +64,18 @@ overwriting existing files. Ask before opening the summary preview.
 For example, if your request handler is in `src\search.py`, substitute that
 actual path. Start with a small, known flow rather than the whole application.
 
+### Optional: insert a template without copying it
+
+Install the separate [VS Code prompt picker](prompt-picker.md), then press
+**Ctrl+Shift+P** and choose **Auditor: Insert Prompt**. Type `/audit-start`,
+select it and confirm replacing the Chat draft. The full prompt appears as
+editable text; replace the placeholders and send it yourself.
+
+All 14 catalog workflows have picker names. These names work in the picker,
+not directly in Copilot's slash menu. The extension does not select the agent,
+install skills or confirm trace sanitization. Review attachments before sending.
+Its prefill command needs a manual check in your VS Code host.
+
 ## 3. Read the result
 
 Normally you receive two Markdown files in the application's `reports\` folder:

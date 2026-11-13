@@ -1,0 +1,32 @@
+{
+  "name": "auditor-prompt-picker",
+  "displayName": "Auditor Prompt Picker",
+  "description": "Insert editable AI Efficiency & Performance Auditor prompts into Copilot Chat without sending them.",
+  "version": "0.1.0",
+  "publisher": "fbabaei",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fbabaei/ai-efficiency-performance-auditor.git",
+    "directory": "extensions/auditor-prompt-picker"
+  },
+  "engines": {
+    "vscode": "^1.146.0"
+  },
+  "categories": ["Other"],
+  "main": "./src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "auditor.insertPrompt",
+        "title": "Insert Prompt",
+        "category": "Auditor"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "test": "npm run build && node --test",
+    "vscode:prepublish": "npm run build"
+  }
+}

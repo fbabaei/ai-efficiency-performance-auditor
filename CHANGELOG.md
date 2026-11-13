@@ -2,6 +2,12 @@
 
 ## 0.5.0 - Unreleased
 
+- Add a separate, optional VS Code prompt-picker extension covering all 14
+  catalog workflows. Slash-style names in its picker insert editable, unsent
+  Chat drafts with replacement consent and explicit errors. Generate bundled
+  text from the existing catalog without modifying the auditor or permissions.
+  Document that native slash interception is unsupported and prefill uses a
+  version-sensitive command; automated mocked checks are not live-host proof.
 - Complete the beginner prompt catalog with a goal-based index, consistent
   prerequisites/inputs/outputs/next steps, a base-only starting prompt and
   standalone retrieval, orchestration, service, before/after, trace-only and

@@ -47,6 +47,7 @@ correctness or security.
 - [Agent definition](.github/agents/ai-efficiency-performance-auditor.agent.md)
 - [Detailed documentation](docs/agent-guide.md)
 - [Choose-your-goal prompt catalog](docs/usage-prompts.md#choose-your-goal)
+- [Optional editable prompt picker for VS Code](docs/prompt-picker.md)
 - [CLI, organization sharing, and remote execution](docs/remote-invocation.md)
 - [Synthetic evaluation suite](evaluations/README.md)
 - [Prioritized v0.5.0 acceptance backlog](docs/v0.5.0-backlog.md)
@@ -73,6 +74,18 @@ service-performance review, naming a source entry point and scenario. The skill
 is opt-in; ordinary tool/model audits do not load its checklist. It adds async,
 pooling, concurrency, streaming, storage, and cleanup review without granting
 execution permissions or adding another agent.
+
+### Optional editable prompt insertion
+
+The separate [Auditor Prompt Picker](docs/prompt-picker.md) extension offers
+all 14 catalog templates. Run **Auditor: Insert Prompt** from the Command Palette,
+type `/audit-start` or another picker name, and confirm insertion into Copilot
+Chat. The text stays editable and unsent until you send it yourself.
+
+These are picker names, not native Copilot slash commands. The extension cannot
+intercept typing in Copilot's input box. It warns before replacing an existing
+draft, does not install skills or select the agent, and uses a version-sensitive
+VS Code prefill command. See the guide for build/install and manual host checks.
 
 ### Optional advisory capabilities
 

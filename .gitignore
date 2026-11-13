@@ -1,3 +1,6 @@
 __pycache__/
 *.py[cod]
 evaluations/results/
+extensions/auditor-prompt-picker/resources/
+extensions/auditor-prompt-picker/LICENSE
+extensions/auditor-prompt-picker/*.vsix
