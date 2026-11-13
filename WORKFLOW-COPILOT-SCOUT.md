@@ -99,3 +99,6 @@ Format:
 ## 8) Example workflow in this repo
 
 See `docs/WORKFLOW-COPILOT-SCOUT-EXAMPLE.md` for a filled end-to-end example (task definition, Copilot prompt, Scout prompt, and done checklist).
+
+For Scout-led audit execution and outbound delivery (email + Teams), see:
+`docs/SCOUT-AUDIT-DELIVERY-WORKFLOW.md`.
