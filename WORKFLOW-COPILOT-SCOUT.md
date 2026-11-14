@@ -102,3 +102,5 @@ See `docs/WORKFLOW-COPILOT-SCOUT-EXAMPLE.md` for a filled end-to-end example (ta
 
 For Scout-led audit execution and outbound delivery (email + Teams), see:
 `docs/SCOUT-AUDIT-DELIVERY-WORKFLOW.md`.
+
+That runbook supports both local repository paths and GitHub repository URLs (URL inputs are cloned locally before auditing).

@@ -46,7 +46,7 @@ correctness or security.
 - [Beginner quick start and simple feature explanation](docs/quick-start.md)
 - [Agent definition](.github/agents/ai-efficiency-performance-auditor.agent.md)
 - [Detailed documentation](docs/agent-guide.md)
-- [Scout-assisted audit and delivery workflow](docs/SCOUT-AUDIT-DELIVERY-WORKFLOW.md)
+- [Scout-assisted audit and delivery workflow](docs/SCOUT-AUDIT-DELIVERY-WORKFLOW.md) (supports local paths and GitHub repo URLs)
 - [Choose-your-goal prompt catalog](docs/usage-prompts.md#choose-your-goal)
 - [Optional editable prompt picker for VS Code](docs/prompt-picker.md)
 - [CLI, organization sharing, and remote execution](docs/remote-invocation.md)

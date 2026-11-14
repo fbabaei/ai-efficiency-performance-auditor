@@ -60,6 +60,7 @@ Keep it brief and grounded only in the updated file content.
 
 1. Copy this file section-by-section for a new task.
 2. Replace task/scope/constraints/criteria with the new request.
-3. Keep the same separation of responsibilities:
+3. For Scout-led audits, you can provide either a local repo path or a GitHub repo URL (Scout resolves URL inputs by cloning locally first).
+4. Keep the same separation of responsibilities:
    - Copilot for implementation.
    - Scout for orchestration and communications.

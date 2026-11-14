@@ -4,7 +4,7 @@ Use this workflow when you want Scout to run an AI efficiency/performance audit 
 
 ## Quick start for a new user
 
-1. Clone the application repository locally (this flow expects a local filesystem path).
+1. Provide either a local repository path or a GitHub repository URL.
 2. Open the local repo in VS Code with GitHub Copilot enabled.
 3. Select **AI Efficiency & Performance Auditor** in Copilot Chat.
 4. Run a scoped audit prompt, for example:
@@ -19,7 +19,13 @@ Audit ./src; focus on latency, token/tool-call efficiency, retries; format words
 Audit /workspace/retrieval-gateway; focus on latency, token/tool-call efficiency, retries; send report to fbabaei@microsoft.com and teams; format words.
 ```
 
-Note: a GitHub repo URL by itself is not enough in this local workflow; use a cloned local path.
+If you provide a GitHub URL, Scout should clone it to a local working folder first, then run the audit on that local path.
+
+Example URL-based request:
+
+```text
+Audit https://github.com/contoso/retrieval-gateway; focus on latency, token/tool-call efficiency, retries; send report to fbabaei@microsoft.com and teams; format words.
+```
 
 ## 1) Define the audit request
 
@@ -49,6 +55,10 @@ Scout should:
    - validation plan
 4. Send the report by email to the requested recipient(s).
 5. Send a short Teams completion notification.
+6. When input is a GitHub URL:
+   - clone to a local folder (or reuse/update an existing clone),
+   - confirm the resolved local path used for analysis,
+   - run the audit against that local path.
 
 ## 3) Report structure (recommended)
 
