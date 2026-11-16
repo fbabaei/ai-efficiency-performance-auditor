@@ -48,6 +48,7 @@ correctness or security.
 - [Detailed documentation](docs/agent-guide.md)
 - [Scout-assisted audit and delivery workflow](docs/SCOUT-AUDIT-DELIVERY-WORKFLOW.md) (supports local paths and GitHub repo URLs)
 - [Scout daily accepted-meeting coverage workflow](docs/SCOUT-DAILY-MEETING-COVERAGE-WORKFLOW.md)
+- [New user onboarding message template](docs/NEW-USER-ONBOARDING-MESSAGE-TEMPLATE.md)
 - [Bootstrap setup scripts](scripts/) (copy agent/skills into another repo)
 - [Choose-your-goal prompt catalog](docs/usage-prompts.md#choose-your-goal)
 - [Optional editable prompt picker for VS Code](docs/prompt-picker.md)
