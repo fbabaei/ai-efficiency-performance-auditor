@@ -4,11 +4,20 @@ param(
     [string]$SourceRepoPath,
     [string]$SourceRepoUrl = "https://github.com/fbabaei/ai-efficiency-performance-auditor.git",
     [string[]]$Skills = @(),
-    [switch]$IncludeServicePerformanceSkill
+    [switch]$IncludeServicePerformanceSkill,
+    [switch]$Interactive,
+    [string]$AuditFocus = "latency, token/tool-call efficiency, retries",
+    [string]$AuditEmailRecipient = "",
+    [switch]$IncludeTeamsNotification = $true
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+$script:ProvidedIncludeServiceSkill = $PSBoundParameters.ContainsKey("IncludeServicePerformanceSkill")
+$script:ProvidedSkills = $PSBoundParameters.ContainsKey("Skills")
+$script:ProvidedAuditFocus = $PSBoundParameters.ContainsKey("AuditFocus")
+$script:ProvidedAuditRecipient = $PSBoundParameters.ContainsKey("AuditEmailRecipient")
+$script:ProvidedTeamsPreference = $PSBoundParameters.ContainsKey("IncludeTeamsNotification")
 
 function Assert-GitAvailable {
     if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
@@ -49,22 +58,107 @@ function Copy-DirectoryTree([string]$Source, [string]$Destination) {
     Copy-Item -LiteralPath $Source -Destination $Destination -Recurse -Force
 }
 
+function Compose-ScoutAuditCommand(
+    [string]$AuditTarget,
+    [string]$Focus,
+    [string]$EmailRecipient,
+    [bool]$IncludeTeams
+) {
+    $command = "Audit $AuditTarget; focus on $Focus; format words."
+    if (-not [string]::IsNullOrWhiteSpace($EmailRecipient)) {
+        if ($IncludeTeams) {
+            $command = "Audit $AuditTarget; focus on $Focus; send report to $EmailRecipient and teams; format words."
+        }
+        else {
+            $command = "Audit $AuditTarget; focus on $Focus; send report to $EmailRecipient; format words."
+        }
+    }
+    return $command
+}
+
+function Run-InteractivePrompts {
+    if ([string]::IsNullOrWhiteSpace($script:TargetRepoPath) -and [string]::IsNullOrWhiteSpace($script:TargetRepoUrl)) {
+        Write-Host "Choose target mode:"
+        Write-Host "  1) GitHub repository URL"
+        Write-Host "  2) Local repository path"
+        $mode = Read-Host "Enter 1 or 2"
+        if ($mode -eq "1") {
+            $script:TargetRepoUrl = Read-Host "Target repository URL"
+        }
+        elseif ($mode -eq "2") {
+            $script:TargetRepoPath = Read-Host "Target local repository path"
+        }
+        else {
+            throw "Invalid selection. Enter 1 or 2."
+        }
+    }
+
+    if (-not $script:ProvidedIncludeServiceSkill) {
+        $include = (Read-Host "Include service-performance-review skill? (Y/n)").Trim()
+        if ([string]::IsNullOrWhiteSpace($include) -or $include.ToLowerInvariant() -eq "y" -or $include.ToLowerInvariant() -eq "yes") {
+            $script:IncludeServicePerformanceSkill = $true
+        }
+    }
+
+    if (-not $script:ProvidedSkills -and ($script:Skills | Measure-Object).Count -eq 0) {
+        $extraSkills = Read-Host "Additional skills (comma-separated, optional)"
+        if (-not [string]::IsNullOrWhiteSpace($extraSkills)) {
+            $script:Skills = $extraSkills.Split(",") | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+        }
+    }
+
+    if (-not $script:ProvidedAuditFocus) {
+        $focus = Read-Host "Audit focus (default: latency, token/tool-call efficiency, retries)"
+        if (-not [string]::IsNullOrWhiteSpace($focus)) {
+            $script:AuditFocus = $focus
+        }
+    }
+
+    if (-not $script:ProvidedAuditRecipient) {
+        $recipient = Read-Host "Email recipient for Scout delivery (optional)"
+        if (-not [string]::IsNullOrWhiteSpace($recipient)) {
+            $script:AuditEmailRecipient = $recipient
+        }
+    }
+
+    if (-not $script:ProvidedTeamsPreference) {
+        $teams = (Read-Host "Include Teams notification in Scout command? (Y/n)").Trim()
+        if ($teams.ToLowerInvariant() -eq "n" -or $teams.ToLowerInvariant() -eq "no") {
+            $script:IncludeTeamsNotification = $false
+        }
+        else {
+            $script:IncludeTeamsNotification = $true
+        }
+    }
+}
+
 Assert-GitAvailable
 
 if ([string]::IsNullOrWhiteSpace($TargetRepoPath) -and [string]::IsNullOrWhiteSpace($TargetRepoUrl)) {
-    throw "Provide -TargetRepoPath or -TargetRepoUrl."
+    if (-not $Interactive) {
+        throw "Provide -TargetRepoPath or -TargetRepoUrl, or run with -Interactive."
+    }
+}
+
+if ($Interactive) {
+    Run-InteractivePrompts
 }
 
 $workingRoot = Join-Path $HOME "workspace"
 Ensure-Directory -PathValue $workingRoot
 
+$resolvedTargetForAudit = ""
 if ([string]::IsNullOrWhiteSpace($TargetRepoPath)) {
     $targetName = Resolve-RepoName -RepoUrl $TargetRepoUrl
     $TargetRepoPath = Join-Path $workingRoot $targetName
     Ensure-Repo -LocalPath $TargetRepoPath -RepoUrl $TargetRepoUrl
+    $resolvedTargetForAudit = $TargetRepoUrl
 }
 elseif (-not (Test-Path -LiteralPath (Join-Path $TargetRepoPath ".git"))) {
     throw "Target path is not a git repository: $TargetRepoPath"
+}
+else {
+    $resolvedTargetForAudit = $TargetRepoPath
 }
 
 if ([string]::IsNullOrWhiteSpace($SourceRepoPath)) {
@@ -114,4 +208,10 @@ if ($skillsToCopy.Count -gt 0) {
 Write-Host ""
 Write-Host "Bootstrap complete."
 Write-Host "Target repo: $TargetRepoPath"
-Write-Host "Next step: open the target repo and run an audit prompt with AI Efficiency & Performance Auditor."
+$scoutCommand = Compose-ScoutAuditCommand -AuditTarget $resolvedTargetForAudit -Focus $AuditFocus -EmailRecipient $AuditEmailRecipient -IncludeTeams $IncludeTeamsNotification
+$commandFile = Join-Path $TargetRepoPath "SCOUT-AUDIT-COMMAND.txt"
+Set-Content -LiteralPath $commandFile -Value $scoutCommand -Encoding UTF8
+Write-Host "Scout command saved: $commandFile"
+Write-Host ""
+Write-Host "Run this in Scout:"
+Write-Host $scoutCommand

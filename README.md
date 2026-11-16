@@ -77,11 +77,29 @@ Windows launcher (auto-detects PowerShell first, then Bash):
 .\scripts\bootstrap-auditor.cmd -TargetRepoUrl https://github.com/<org>/<app-repo>.git -IncludeServicePerformanceSkill
 ```
 
+Windows interactive mode:
+
+```bat
+.\scripts\bootstrap-auditor.cmd -Interactive
+```
+
 Linux/macOS (Bash):
 
 ```bash
 ./scripts/bootstrap-auditor.sh --target-repo-url https://github.com/<org>/<app-repo>.git --include-service-performance-skill
 ```
+
+Linux/macOS interactive mode:
+
+```bash
+./scripts/bootstrap-auditor.sh --interactive
+```
+
+The script writes a ready-to-run Scout command to:
+
+- `<target-repo>/SCOUT-AUDIT-COMMAND.txt`
+
+and prints the same command in the terminal.
 
 ### Direct PowerShell usage
 
