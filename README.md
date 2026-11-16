@@ -47,6 +47,8 @@ correctness or security.
 - [Agent definition](.github/agents/ai-efficiency-performance-auditor.agent.md)
 - [Detailed documentation](docs/agent-guide.md)
 - [Scout-assisted audit and delivery workflow](docs/SCOUT-AUDIT-DELIVERY-WORKFLOW.md) (supports local paths and GitHub repo URLs)
+- [Scout daily accepted-meeting coverage workflow](docs/SCOUT-DAILY-MEETING-COVERAGE-WORKFLOW.md)
+- [Bootstrap setup scripts](scripts/) (copy agent/skills into another repo)
 - [Choose-your-goal prompt catalog](docs/usage-prompts.md#choose-your-goal)
 - [Optional editable prompt picker for VS Code](docs/prompt-picker.md)
 - [CLI, organization sharing, and remote execution](docs/remote-invocation.md)
@@ -66,6 +68,38 @@ correctness or security.
    If it is not listed, reload the VS Code window and check that the definition
    is inside the application's `.github/agents/` directory.
 6. Submit a scoped audit request.
+
+### One-command bootstrap for new users (auto shell)
+
+Windows launcher (auto-detects PowerShell first, then Bash):
+
+```bat
+.\scripts\bootstrap-auditor.cmd -TargetRepoUrl https://github.com/<org>/<app-repo>.git -IncludeServicePerformanceSkill
+```
+
+Linux/macOS (Bash):
+
+```bash
+./scripts/bootstrap-auditor.sh --target-repo-url https://github.com/<org>/<app-repo>.git --include-service-performance-skill
+```
+
+### Direct PowerShell usage
+
+Use this script to copy the auditor agent (and optional skills) into a target application repo:
+
+```powershell
+pwsh -NoProfile -File .\scripts\bootstrap-auditor.ps1 `
+  -TargetRepoUrl "https://github.com/<org>/<app-repo>.git" `
+  -IncludeServicePerformanceSkill
+```
+
+Optional: copy additional skills by name:
+
+```powershell
+pwsh -NoProfile -File .\scripts\bootstrap-auditor.ps1 `
+  -TargetRepoPath "C:\path\to\app-repo" `
+  -Skills "context-retrieval-review","orchestration-efficiency-review"
+```
 
 For optional service-performance reviews, also copy
 [`.github/skills/service-performance-review/`](.github/skills/service-performance-review/SKILL.md)
