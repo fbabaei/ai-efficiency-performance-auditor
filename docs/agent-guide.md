@@ -332,6 +332,7 @@ separate discovery passes or independently added savings.
 | Recommendation cards and effort-aware handoff | `recommendation-planning` skill | Added; declaration checks and manual acceptance cases, no live behavior claim |
 | PR/diff efficiency review | Separate `change-impact-review` skill using supplied changes and affected call paths | Added; declaration checks and manual acceptance cases, no live behavior claim |
 | Missing telemetry and instrumentation advice | Separate `measurement-readiness` skill | Added; declaration/manual cases, not telemetry collection |
+| Observability coverage and monitoring readiness | Separate `observability-readiness` skill | Added; declaration/manual cases, not dashboard deployment or telemetry collection |
 | Finding-level optimization verification | `audit-comparison` with opt-in verification reference | Added decision rules; live semantic validation remains |
 | Efficiency budgets and CI enforcement | Offline companion gate plus `efficiency-budget-review` skill | Added deterministic checks and CI exit codes; no CI integration installed |
 | Standard trace import | Offline OTLP JSON metadata adapter | Added; exact sanitization confirmation required; no collection or automatic request rollup |
@@ -413,6 +414,21 @@ Readiness is per decision: ready, partial or blocked. Schema completeness is not
 proof of representative sampling, quality or safe reuse. No raw prompt/response
 logging, sensitive hashes, installation, collection or workload execution occurs.
 Instrumentation proposals and unapproved thresholds remain in Validation plan.
+
+### Observability readiness
+
+Install [observability-readiness](../.github/skills/observability-readiness/SKILL.md).
+Name one scenario or exact report and ask whether telemetry and monitoring are
+sufficient to support efficiency decisions and safe validation.
+
+The skill evaluates coverage and correlation prerequisites for retries, latency,
+token usage, cache outcomes, failures and task-quality outcomes. It keeps
+requests payload-free, requires opaque IDs and explicit outcome semantics, and
+flags readiness as ready, partial or blocked per decision.
+
+It does not install instrumentation, collect telemetry, deploy dashboards/alerts,
+run external queries or execute workloads. Missing approvals, blind spots and
+unknown population coverage remain explicit in Validation plan.
 
 ### Efficiency-budget interpretation
 

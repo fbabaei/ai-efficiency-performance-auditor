@@ -20,6 +20,7 @@ called **skills**. You install and request only the ones you need.
 | "What should a developer do next?" | `recommendation-planning` | Proposed tasks with safeguards, dependencies, tests and rollback conditions |
 | "Could this code change make things worse?" | `change-impact-review` | Focused review of supplied changes and affected code paths |
 | "What should we measure?" | `measurement-readiness` | Missing measurements and privacy-conscious instrumentation suggestions |
+| "Are our telemetry and alerts sufficient?" | `observability-readiness` | Gaps in coverage/correlation plus privacy-safe monitoring recommendations |
 | "Did the change really fix the finding?" | `audit-comparison`, explicitly requesting finding verification | Fixed, partial, persistent, regressed or inconclusive status, depending on evidence |
 | "Are we meeting our approved limits?" | Offline gate, then `efficiency-budget-review` | Calculated checks, followed by a plain-language explanation |
 | "Can we use an existing trace export?" | Offline OTLP importer | A metadata-only view of an already-sanitized OpenTelemetry JSON export |

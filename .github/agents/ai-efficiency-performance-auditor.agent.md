@@ -22,7 +22,7 @@ Only for explicitly requested modes, read the matching SKILL.md under
 `.github/skills/`: `audit-comparison` (two-side comparison),
 `context-retrieval-review`, `orchestration-efficiency-review`, or
 `service-performance-review`, `change-impact-review`, `recommendation-planning`,
-`measurement-readiness`, or `efficiency-budget-review`.
+`measurement-readiness`, `observability-readiness`, or `efficiency-budget-review`.
 Disclose missing guidance; do not claim its coverage.
 Do not silently broaden ordinary tool/model audits. Preserve core boundaries and
 budgets, including skill/reference reads; combine modes without duplicate findings.

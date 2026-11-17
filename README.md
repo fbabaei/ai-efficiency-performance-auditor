@@ -158,6 +158,7 @@ permissions; they do not execute workloads, collect telemetry or modify code.
 | [recommendation-planning](.github/skills/recommendation-planning/SKILL.md) | Turn scoped audit findings or named reports into developer handoff cards with safeguards, dependencies, acceptance checks and rollback criteria |
 | [change-impact-review](.github/skills/change-impact-review/SKILL.md) | Review supplied diffs or named source snapshots and affected call paths; distinguish introduced regressions, pre-existing defects and unknown attribution |
 | [measurement-readiness](.github/skills/measurement-readiness/SKILL.md) | Identify missing metadata, coverage and quality evidence; propose payload-free instrumentation without installing it |
+| [observability-readiness](.github/skills/observability-readiness/SKILL.md) | Assess telemetry and monitoring readiness for efficiency decisions: coverage gaps, correlation limits, alert blind spots and privacy-safe metadata needs |
 | [efficiency-budget-review](.github/skills/efficiency-budget-review/SKILL.md) | Interpret supplied approved budget/gate results and their quality, comparability and coverage limitations |
 
 Select **AI Efficiency & Performance Auditor** and name the mode and exact inputs. The agent
