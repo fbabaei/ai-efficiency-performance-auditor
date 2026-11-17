@@ -7,6 +7,8 @@ what to improve and why. It recommends changes; it does not implement them.
 **Start with a code review. You do not need traces, Python or every optional
 module for your first audit.**
 
+**Recommendation:** If you do not have Microsoft 365 Copilot access, you can still run the auditor normally. Microsoft 365-style email/Teams delivery steps are optional.
+
 ## What changed, in plain language?
 
 Instead of making one large agent do everything, we added optional modules

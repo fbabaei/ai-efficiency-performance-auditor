@@ -22,6 +22,8 @@ The agent recommends changes and validation experiments, saves a detailed Markdo
 audit and Executive Summary, and asks before opening the summary preview. It does not edit application code,
 run commands, call external services, or replay workloads.
 
+> Recommendation: Users without Microsoft 365 Copilot access can still use the auditor for full source-based audits. Microsoft 365-style delivery (email/Teams automation) is optional.
+
 Audits are user-selected (`disable-model-invocation: true`). One shared profile
 retains VS Code and CLI use plus experimental cloud compatibility; `target` is
 intentionally unset. The prompt stays below GitHub's 30,000-character limit.
