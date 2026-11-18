@@ -57,5 +57,5 @@ test("the contributed command loads its packaged catalog and registers disposal"
   assert.equal(subscriptions[0], disposable);
   await handler();
   assert.equal(requestedUri, "extension/resources/catalog.json");
-  assert.equal(offeredItems.length, 14);
+  assert.equal(offeredItems.length, 15);
 });

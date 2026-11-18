@@ -40,9 +40,10 @@ test("the picker inserts the exact template as a partial query only after consen
   await insertPrompt(vscode, async () => catalog);
   assert.deepEqual(calls.map((call) => call[0]), ["pick", "confirm", "execute"]);
   const items = calls[0][1];
-  assert.equal(items.length, 14);
+  assert.equal(items.length, 15);
   assert.equal(items[0].label, "/audit-start");
   assert.match(items.find((item) => item.label === "/audit-deep").detail, /service-performance-review/);
+  assert.match(items.find((item) => item.label === "/audit-observability").detail, /observability-readiness/);
   assert.equal(calls[1][2].modal, true);
   assert.match(calls[1][1], /replaces any existing Chat draft/);
   assert.deepEqual(calls[2], ["execute", "workbench.action.chat.open", {

@@ -142,7 +142,7 @@ execution permissions or adding another agent.
 ### Optional editable prompt insertion
 
 The separate [Auditor Prompt Picker](docs/prompt-picker.md) extension offers
-all 14 catalog templates. Run **Auditor: Insert Prompt** from the Command Palette,
+all 15 catalog templates. Run **Auditor: Insert Prompt** from the Command Palette,
 type `/audit-start` or another picker name, and confirm insertion into Copilot
 Chat. The text stays editable and unsent until you send it yourself.
 
@@ -176,6 +176,10 @@ confounded inputs become separate profiles, omitted findings are not assumed
 resolved, and fewer calls alone does not establish improved quality or safety.
 See [usage and limitations](docs/agent-guide.md#optional-advisory-reviews) and
 [synthetic acceptance cases](evaluations/advisory-skills.md).
+
+For telemetry and alert coverage, see the
+[observability quick walkthrough](docs/agent-guide.md#observability-readiness),
+or select `/audit-observability` in the optional picker.
 
 For implementation-ready recommendations, install `recommendation-planning` and
 explicitly request it with a scoped audit or an exact existing report path.

@@ -1,7 +1,7 @@
 # Auditor Prompt Picker
 
 A separate, optional VS Code extension that inserts one of the auditor's
-14 prompt templates into Copilot Chat as **editable, unsent text**.
+15 prompt templates into Copilot Chat as **editable, unsent text**.
 
 ## Use
 

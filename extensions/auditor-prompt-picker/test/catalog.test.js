@@ -9,11 +9,11 @@ const markdown = fs.readFileSync(
   "utf8",
 ).replace(/\r\n/g, "\n");
 
-test("all 14 catalog templates are packaged verbatim and have unique commands", () => {
+test("all 15 catalog templates are packaged verbatim and have unique commands", () => {
   const catalog = parseCatalog(markdown);
   const templates = [...markdown.matchAll(/^```text\n([\s\S]*?)^```[ \t]*$/gm)]
     .map((match) => match[1].trimEnd());
-  assert.equal(catalog.length, 14);
+  assert.equal(catalog.length, 15);
   assert.equal(new Set(catalog.map((entry) => entry.command)).size, catalog.length);
   assert.deepEqual(catalog.map((entry) => entry.prompt), templates);
   assert.deepEqual(require("../resources/catalog.json"), catalog);
@@ -25,6 +25,22 @@ test("all 14 catalog templates are packaged verbatim and have unique commands", 
       )));
     }
   }
+});
+
+test("the packaged observability prompt carries scope, evidence and alert safeguards", () => {
+  const entry = require("../resources/catalog.json").find(
+    ({ command }) => command === "audit-observability",
+  );
+  assert.ok(entry);
+  assert.deepEqual(entry.skills, ["observability-readiness"]);
+  const prompt = entry.prompt.replace(/\s+/g, " ");
+  assert.match(prompt, /keep exactly one option; ask me to clarify if unclear/);
+  assert.match(prompt, /only application evidence.*even if the report links to them/);
+  assert.match(prompt, /Do not discover or enumerate runtime artifacts/);
+  assert.match(prompt, /exact-path sanitization gate before any payload access/);
+  assert.match(prompt, /This template does not confirm sanitization/);
+  assert.match(prompt, /Distinguish configured telemetry from observed capture/);
+  assert.match(prompt, /Rate alert readiness separately.*failures and timeouts.*approved threshold and evaluation window.*named owner with a documented response plan/);
 });
 
 test("Windows line endings do not change the inserted prompts", () => {

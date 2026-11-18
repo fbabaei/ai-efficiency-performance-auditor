@@ -68,6 +68,7 @@ No global keybinding is installed automatically.
 | `/audit-plan` | [Recommendation planning](usage-prompts.md#recommendation-planning) | `recommendation-planning` |
 | `/audit-change` | [Change-impact review](usage-prompts.md#change-impact-review) | `change-impact-review` |
 | `/audit-measurement` | [Measurement readiness](usage-prompts.md#measurement-readiness) | `measurement-readiness` |
+| `/audit-observability` | [Observability readiness](usage-prompts.md#observability-readiness) | `observability-readiness` |
 | `/audit-compare` | [Baseline/candidate comparison](usage-prompts.md#baselinecandidate-comparison) | `audit-comparison` with references |
 | `/audit-verify` | [Finding-level verification](usage-prompts.md#finding-level-verification) | `audit-comparison` with references |
 | `/audit-budgets` | [Efficiency-budget interpretation](usage-prompts.md#efficiency-budget-interpretation) | `efficiency-budget-review` |
@@ -120,5 +121,8 @@ After installation, perform this manual check without submitting an audit:
 4. Check `/audit-deep` lists all three skills and inserts its own template.
 5. Check `/audit-traces` retains the statement that the template does not
    confirm sanitization. Do not attach real traces for this UI check.
+6. Check `/audit-observability` lists `observability-readiness` and inserts both
+   scope options, the export sanitization requirements and the alert-readiness
+   checklist as an editable draft. Clear it without sending.
 
 If any step fails, do not rely on prefill in that host; use manual copy/paste.

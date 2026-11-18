@@ -23,6 +23,7 @@ the same auditor agent; skills are optional checklists, not separate agents.
 | Combined review | Include service lifecycle checks too | [Deep analysis](#deep-analysis) | Context + orchestration + service skills |
 | Next steps | Turn findings into developer tasks | [Recommendation planning](#recommendation-planning) | `recommendation-planning` |
 | Next steps | Decide what to measure | [Measurement readiness](#measurement-readiness) | `measurement-readiness` |
+| Next steps | Validate telemetry and monitoring coverage | [Observability readiness](#observability-readiness) | `observability-readiness` |
 | Change review | Review proposed code changes | [Change-impact review](#change-impact-review) | `change-impact-review` |
 | Before/after | Compare two existing reports | [Baseline/candidate comparison](#baselinecandidate-comparison) | `audit-comparison` with references |
 | Before/after | Verify individual fixes | [Finding-level verification](#finding-level-verification) | `audit-comparison` with references |
@@ -38,7 +39,7 @@ Instead of copying a template, install the separate
 from the Command Palette and type a picker name such as `/audit-start` or
 `/audit-context`. Select it and confirm replacement of any existing Chat draft.
 The full template is inserted as editable, unsent text; edit its inputs and send
-it yourself. The guide lists all 14 names and installation/host-check steps.
+it yourself. The guide lists all 15 names and installation/host-check steps.
 
 Picker names are not native Copilot slash commands. Agent selection, required
 skills, input safety and attachments remain your responsibility. The extension
@@ -303,6 +304,53 @@ Propose payload-free measurements and positive/negative/error-path checks.
 Mark readiness per decision; absence of telemetry is not proof of waste.
 Do not install instrumentation, collect telemetry, run workloads or invent
 quality thresholds. Retain the six sections and one report pair.
+```
+
+## Observability readiness
+
+**When:** You need to validate telemetry/monitoring coverage for efficiency decisions.<br/>
+**Install:** `observability-readiness`.<br/>
+**Inputs:** Choose report-only or scoped source. For scoped source, optionally
+name existing sanitized runtime exports by exact workspace path. Remove the
+unused scope option and any unused export placeholder before sending.<br/>
+**Expect:** Coverage/correlation gaps, privacy-safe metadata requirements and
+separate readiness assessments for telemetry evidence and applicable alerts.<br/>
+**Next:** Address telemetry gaps, then use comparison or budget interpretation with
+approved measured evidence.
+
+```text
+Explicitly use observability-readiness for this scenario:
+<one efficiency decision or audit finding to validate>
+
+Scope (keep exactly one option; ask me to clarify if unclear):
+- Report only: Use <exact existing report path> as the only application
+  evidence. Skip app discovery and do not open source, configuration, other
+  reports, or runtime artifacts, even if the report links to them. Attribute
+  report claims as supplied, not reverified.
+- Scoped source: Start at <exact source entry point>; read only the direct
+  dependencies and configuration needed for this scenario. Optional existing
+  runtime exports: <exact workspace paths, or remove this export input>.
+
+Do not discover or enumerate runtime artifacts. For explicitly named exports,
+apply the core exact-path sanitization gate before any payload access. This
+template does not confirm sanitization. Leave ineligible exports unread and
+report the evidence gap.
+
+Assess whether current telemetry and monitoring are sufficient to validate
+latency, retries, token/cost behavior, cache outcomes and task-level quality.
+Map each decision to: existing evidence, missing telemetry, source site or
+unknown, units/population, privacy/retention safeguards, and ownership.
+Distinguish configured telemetry from observed capture; without eligible
+runtime evidence, do not claim capture or representative coverage was verified.
+
+Rate alert readiness separately where relevant. Check whether the signal covers
+failures and timeouts, has an approved threshold and evaluation window, and
+routes to a named owner with a documented response plan. Mark gaps instead of
+inventing thresholds or assuming alerts are ready because telemetry exists.
+
+Do not collect telemetry, deploy dashboards/alerts, run workloads, install
+instrumentation, or modify code. Keep missing evidence explicit; absence of
+telemetry does not prove waste. Retain the six sections and one report pair.
 ```
 
 ## Baseline/candidate comparison

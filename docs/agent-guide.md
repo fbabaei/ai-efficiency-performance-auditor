@@ -417,14 +417,27 @@ Instrumentation proposals and unapproved thresholds remain in Validation plan.
 
 ### Observability readiness
 
-Install [observability-readiness](../.github/skills/observability-readiness/SKILL.md).
-Name one scenario or exact report and ask whether telemetry and monitoring are
-sufficient to support efficiency decisions and safe validation.
+1. Copy the whole [observability-readiness skill directory](../.github/skills/observability-readiness/)
+   into `.github/skills/observability-readiness/` in the application repo.
+   Select **AI Efficiency & Performance Auditor** in Copilot Chat.
+2. Copy the [observability readiness template](usage-prompts.md#observability-readiness)
+   or choose `/audit-observability` in **Auditor: Insert Prompt** if you have the
+   [optional VS Code picker](prompt-picker.md).
+3. Name one decision and keep one scope option. For a report-only review, you
+   might ask whether the evidence in `reports/search-audit-detailed-report.md`
+   is enough to detect retry amplification. The auditor uses only that report,
+   without opening its references. For scoped source, name an entry point such
+   as `src/search.py`. Optionally name existing runtime exports by exact
+   workspace path; the core sanitization gate applies before payload access.
+4. Remove unused options and placeholders, then send the prompt. Read
+   **Validation plan and missing evidence** for gaps and what to verify next.
 
 The skill evaluates coverage and correlation prerequisites for retries, latency,
 token usage, cache outcomes, failures and task-quality outcomes. It keeps
-requests payload-free, requires opaque IDs and explicit outcome semantics, and
-flags readiness as ready, partial or blocked per decision.
+requests payload-free and distinguishes configured signals from observed
+capture. It rates telemetry readiness per decision and reports alert readiness
+separately where relevant: coverage of failures and timeouts, an approved
+threshold and window, and routing to an owner with a response plan.
 
 It does not install instrumentation, collect telemetry, deploy dashboards/alerts,
 run external queries or execute workloads. Missing approvals, blind spots and

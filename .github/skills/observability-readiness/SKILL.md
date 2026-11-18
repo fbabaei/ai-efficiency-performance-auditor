@@ -27,9 +27,19 @@ explicitly requested; share evidence, budget and one report pair.
 
 Start from one named scenario/entry point and map each efficiency question to
 required observability evidence: retries, latency, token usage, cache behavior,
-failures and task outcomes. Supplied-report-only requests skip discovery/source
-inspection and preserve "From supplied report; not reverified" for locations.
-Missing locations remain unknown, never invented as instrumentation sites.
+failures and task outcomes. For a supplied-report-only request, skip application
+discovery and limit application evidence to the exact report. Do not follow
+references to source, configuration, other reports or runtime artifacts.
+Preserve "From supplied report; not reverified" for locations. Missing locations
+remain unknown, never invented as instrumentation sites.
+
+For source-backed reviews, stay within the authorized entry point, relevant
+direct dependencies and configuration. Do not discover runtime artifacts.
+Use explicitly named workspace exports only after the core exact-path
+sanitization gate. Leave ineligible exports unread. Distinguish configured
+telemetry from observed capture: code or config can show expected behavior,
+not actual ingestion or population coverage. A sanitized export supports only
+the observations it contains; it is not proof of representative capture.
 
 Distinguish telemetry absence from demonstrated defects. Missing dashboards or
 alerts do not prove waste; they block confidence and verification readiness.
@@ -55,7 +65,20 @@ identifiers or full responses. Do not hash sensitive payloads as a shortcut.
 Require retention/cardinality controls and approval boundaries; mark unknown
 approvals explicitly.
 
-## 3. Define readiness and handoff
+## 3. Assess alert readiness separately
+
+For each applicable alert, cite evidence for the signal and its coverage of
+failures and timeouts, the approved threshold and evaluation window, and the
+route to a named owner with a documented response plan. Treat missing data,
+sampling blind spots and alert noise as limitations where relevant.
+Use ready only when the necessary criteria are supported, partial when some
+are supported but gaps remain, and blocked when missing evidence or approvals
+prevent a meaningful readiness assessment. Mark alerts not applicable when
+they are not needed for the decision. Proposed thresholds are not approvals.
+Telemetry coverage alone does not establish alert readiness. Alert configuration
+is not proof of delivery or response.
+
+## 4. Define readiness and handoff
 
 Classify each decision as ready, partial or blocked, citing exact missing fields,
 population coverage, approval dependencies or quality-contract gaps. Keep

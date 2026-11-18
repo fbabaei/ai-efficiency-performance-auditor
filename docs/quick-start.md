@@ -74,7 +74,7 @@ Install the separate [VS Code prompt picker](prompt-picker.md), then press
 select it and confirm replacing the Chat draft. The full prompt appears as
 editable text; replace the placeholders and send it yourself.
 
-All 14 catalog workflows have picker names. These names work in the picker,
+All 15 catalog workflows have picker names. These names work in the picker,
 not directly in Copilot's slash menu. The extension does not select the agent,
 install skills or confirm trace sanitization. Review attachments before sending.
 Its prefill command needs a manual check in your VS Code host.
