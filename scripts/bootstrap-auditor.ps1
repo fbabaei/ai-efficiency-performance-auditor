@@ -124,24 +124,75 @@ function Select-AuditWorkflow([string]$CatalogRoot) {
             $fields = $_.Split("|")
             [pscustomobject]@{ Id = $fields[0]; Title = $fields[1]; Skills = $fields[2] }
         })
-    Write-Host "What would you like to do?"
+    $headings = @{
+        'audit-start'       = 'Get started'
+        'audit-context'     = 'Review application performance'
+        'audit-plan'        = 'Plan and review changes'
+        'audit-measurement' = 'Measurement and observability'
+        'audit-compare'     = 'Compare and verify results'
+        'audit-focused'     = 'Combined and trace-only audits'
+    }
+    $useColor = -not [Console]::IsOutputRedirected -and $Host.UI.SupportsVirtualTerminal -and
+        $env:TERM -ne 'dumb' -and -not $env:NO_COLOR
+    $categories = @()
+    $category = 0
     for ($i = 0; $i -lt $workflows.Count; $i++) {
         $entry = $workflows[$i]
-        Write-Host "  $($i + 1)) $($entry.Title) [$($entry.Id)]"
+        if ($headings.ContainsKey($entry.Id)) {
+            $categories += $headings[$entry.Id]
+            $category++
+        }
+        $entry | Add-Member -NotePropertyName Category -NotePropertyValue $category
     }
-    Write-Host "  0) Cancel"
+    if ($categories.Count -eq 0) { throw "No workflow categories found." }
+
     while ($true) {
-        $answer = (Read-Host "Choose a number or workflow ID [1]").Trim()
-        if ($answer -eq "0") { Write-Host "Setup cancelled."; exit 0 }
-        if (-not $answer) { $answer = "1" }
-        $number = 0
-        if ([int]::TryParse($answer, [ref]$number) -and $number -ge 1 -and $number -le $workflows.Count) {
-            return $workflows[$number - 1]
+        Write-Host "`nChoose a workflow category:"
+        for ($i = 0; $i -lt $categories.Count; $i++) {
+            $line = "  $($i + 1)) $($categories[$i])"
+            if ($useColor) { Write-Host $line -ForegroundColor Cyan }
+            else { Write-Host $line }
         }
-        foreach ($entry in $workflows) {
-            if ($answer -ceq $entry.Id) { return $entry }
+        Write-Host "  0) Cancel"
+        $choice = (Read-Host "Choose a category [1]").Trim()
+        if ($choice -eq "0") { Write-Host "Setup cancelled."; exit 0 }
+        if (-not $choice) { $choice = "1" }
+        $category = 0
+        if (-not [int]::TryParse($choice, [ref]$category) -or $category -lt 1 -or $category -gt $categories.Count) {
+            Write-Host "Unknown category. Enter a listed number."
+            continue
         }
-        Write-Host "Unknown workflow. Enter a listed number or ID."
+
+        $heading = "`n  $($categories[$category - 1])"
+        if ($useColor) { Write-Host $heading -ForegroundColor Cyan }
+        else { Write-Host $heading }
+        $visible = @(for ($i = 0; $i -lt $workflows.Count; $i++) {
+            $entry = $workflows[$i]
+            if ($entry.Category -ne $category) { continue }
+            $number = '    {0,2})' -f ($i + 1)
+            $label = " $($entry.Title) [$($entry.Id)]"
+            if ($useColor) {
+                Write-Host $number -ForegroundColor Green -NoNewline
+                Write-Host $label
+            }
+            else { Write-Host "$number$label" }
+            $i
+        })
+        Write-Host "     B) Back to categories"
+        Write-Host "     0) Cancel"
+        $defaultNumber = $visible[0] + 1
+        while ($true) {
+            $answer = (Read-Host "Choose a number or workflow ID [$defaultNumber]").Trim()
+            if ($answer -eq "0") { Write-Host "Setup cancelled."; exit 0 }
+            if ($answer -eq "b") { break }
+            if (-not $answer) { return $workflows[$visible[0]] }
+            foreach ($index in $visible) {
+                if ($answer -ceq $workflows[$index].Id -or $answer -eq [string]($index + 1)) {
+                    return $workflows[$index]
+                }
+            }
+            Write-Host "Unknown workflow in this category. Enter a listed number or ID."
+        }
     }
 }
 

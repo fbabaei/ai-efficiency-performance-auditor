@@ -7,7 +7,37 @@ what to improve and why. It recommends changes; it does not implement them.
 **Start with a code review. You do not need traces, Python or every optional
 module for your first audit.**
 
-**Recommendation:** If you do not have Microsoft 365 Copilot access, you can still run the auditor normally. Microsoft 365-style email/Teams delivery steps are optional.
+**No Scout or Microsoft 365 Copilot access is required** to run an audit in
+GitHub Copilot Chat in VS Code. Email and Teams delivery are separate,
+Scout-specific steps.
+
+## Interactive setup for GitHub Copilot Chat
+
+The setup script runs in a local terminal, not on GitHub.com, in GitHub
+Desktop, or in the GitHub mobile app. The audit runs in Copilot Chat in VS Code
+with GitHub Copilot and custom-agent support enabled.
+
+1. Run the [interactive bootstrap](../README.md#one-command-bootstrap-for-new-users-auto-shell).
+   From a full auditor checkout, use `.\scripts\bootstrap-auditor.cmd -Interactive`
+   on Windows or `bash ./scripts/bootstrap-auditor.sh --interactive` on macOS/Linux.
+2. Select your application checkout or enter its Git URL. Choose a category, then
+   a workflow from that category. For example, choose **Measurement and
+   observability** (`4`), then **Observability readiness** (`9`). Setup copies
+   the agent and the skills needed for that workflow. Leave the Scout delivery
+   email blank.
+3. Open the **application checkout** in VS Code and select
+   **AI Efficiency & Performance Auditor** in Copilot Chat. If it does not
+   appear, reload the VS Code window.
+4. Open `SCOUT-AUDIT-COMMAND.txt` in the application checkout. Despite its
+   filename, you can copy the workflow prompt into Copilot Chat: omit the opening
+   lines that identify the local repo and tell Scout where to find the agent.
+   Alternatively, copy the matching [catalog template](usage-prompts.md).
+   Replace the placeholders with actual application-relative paths and inputs,
+   review the scope, and submit the prompt yourself.
+
+Setup does not run the audit or send anything. For an existing installation,
+skip the bootstrap and use the matching template after installing any missing
+skills. For manual setup, follow the steps below.
 
 ## What changed, in plain language?
 

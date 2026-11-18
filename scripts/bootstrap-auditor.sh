@@ -227,31 +227,76 @@ if [[ "$interactive" -eq 1 ]]; then
   if [[ -z "$target_repo_path" && -z "$target_repo_url" ]]; then
     fail "A target repository URL or local path is required."
   fi
-  workflow_ids=() workflow_titles=() workflow_skills=()
-  echo "What would you like to do?"
+  workflow_ids=() workflow_titles=() workflow_skills=() workflow_categories=() categories=()
+  heading_color="" number_color="" reset_color=""
+  if [[ -t 1 && -n "${TERM:-}" && "$TERM" != dumb && -z "${NO_COLOR:-}" ]]; then
+    heading_color=$'\033[36m'
+    number_color=$'\033[32m'
+    reset_color=$'\033[0m'
+  fi
   while IFS='|' read -r id title required; do
     required="${required%$'\r'}"
     workflow_ids+=("$id")
     workflow_titles+=("$title")
     workflow_skills+=("$required")
-    printf '  %s) %s [%s]\n' "${#workflow_ids[@]}" "$title" "$id"
+    heading=""
+    case "$id" in
+      audit-start)       heading="Get started" ;;
+      audit-context)     heading="Review application performance" ;;
+      audit-plan)        heading="Plan and review changes" ;;
+      audit-measurement) heading="Measurement and observability" ;;
+      audit-compare)     heading="Compare and verify results" ;;
+      audit-focused)     heading="Combined and trace-only audits" ;;
+    esac
+    if [[ -n "$heading" ]]; then
+      categories+=("$heading")
+    fi
+    workflow_categories+=("${#categories[@]}")
   done < "$catalog_root/scripts/audit-workflows.txt"
-  echo "  0) Cancel"
+  [[ -n "${categories[0]+x}" ]] || fail "No workflow categories found."
   selected=""
   while [[ -z "$selected" ]]; do
-    read_prompt "Choose a number or workflow ID [1]" answer
-    answer="${answer:-1}"
-    if [[ "$answer" == 0 ]]; then
-      echo "Setup cancelled."
-      exit 0
-    fi
-    for i in "${!workflow_ids[@]}"; do
-      if [[ "$answer" == "$((i + 1))" || "$answer" == "${workflow_ids[$i]}" ]]; then
-        selected="$i"
-        break
-      fi
+    printf '\nChoose a workflow category:\n'
+    for i in "${!categories[@]}"; do
+      printf '  %s%d) %s%s\n' "$heading_color" "$((i + 1))" "${categories[$i]}" "$reset_color"
     done
-    [[ -n "$selected" ]] || echo "Unknown workflow. Enter a listed number or ID."
+    printf '  0) Cancel\n'
+    read_prompt "Choose a category [1]" choice
+    choice="${choice:-1}"
+    if [[ "$choice" == 0 ]]; then echo "Setup cancelled."; exit 0; fi
+    category=""
+    for i in "${!categories[@]}"; do
+      if [[ "$choice" == "$((i + 1))" ]]; then category="$choice"; break; fi
+    done
+    if [[ -z "$category" ]]; then
+      echo "Unknown category. Enter a listed number."
+      continue
+    fi
+
+    printf '\n  %s%s%s\n' "$heading_color" "${categories[$((category - 1))]}" "$reset_color"
+    visible=()
+    for i in "${!workflow_ids[@]}"; do
+      [[ "${workflow_categories[$i]}" == "$category" ]] || continue
+      visible+=("$i")
+      printf '    %s%2d)%s %s [%s]\n' "$number_color" "$((i + 1))" "$reset_color" "${workflow_titles[$i]}" "${workflow_ids[$i]}"
+    done
+    printf '     B) Back to categories\n     0) Cancel\n'
+    default_number="$((visible[0] + 1))"
+    while [[ -z "$selected" ]]; do
+      read_prompt "Choose a number or workflow ID [$default_number]" answer
+      answer="${answer:-$default_number}"
+      case "$answer" in
+        0) echo "Setup cancelled."; exit 0 ;;
+        b|B) break ;;
+      esac
+      for i in "${visible[@]}"; do
+        if [[ "$answer" == "$((i + 1))" || "$answer" == "${workflow_ids[$i]}" ]]; then
+          selected="$i"
+          break
+        fi
+      done
+      [[ -n "$selected" ]] || echo "Unknown workflow in this category. Enter a listed number or ID."
+    done
   done
   title="${workflow_titles[$selected]}"
   required="${workflow_skills[$selected]}"

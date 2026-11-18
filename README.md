@@ -118,19 +118,20 @@ Linux/macOS interactive mode:
 ```
 
 1. Choose a target Git checkout or repository URL.
-2. Pick a workflow by number or ID. Press **Enter** for a base source-only audit,
-   or choose a specialist review such as `audit-observability` for telemetry and
-   alert readiness, `audit-context` for retrieval, `audit-plan` for developer
-   handoff, or `audit-compare` for baseline/candidate comparison. The menu
-   includes all [15 catalog workflows](docs/prompt-picker.md#picker-names),
-   and setup copies the selected workflow's required skills automatically.
+2. Pick a category, then choose a workflow by number or ID from that category.
+   For example, choose **Measurement and observability** (`4`), then
+   **Observability readiness** (`9`). Press **Enter** at both menus for a base
+   source-only audit, **B** in a submenu to go back, or **0** to cancel.
+   Setup copies the required skills for the selected workflow. All
+   [15 catalog workflows](docs/prompt-picker.md#picker-names) are available.
+   Set `NO_COLOR=1` to disable terminal colors.
 3. Optionally add focus and enter a Scout delivery email. Blank means no email;
    a Teams completion notification is opt-in when an email is provided.
 4. Open `<target-repo>/SCOUT-AUDIT-COMMAND.txt`, replace the placeholders with
    your actual inputs, and review it before pasting into Scout. For observability,
    keep either report-only or scoped source. The setup does not run the audit
-   or send anything. For Copilot Chat, use the matching
-   [catalog template](docs/usage-prompts.md) without Scout delivery instructions.
+   or send anything. To run the audit without Scout, follow the
+   [GitHub Copilot Chat quick start](docs/quick-start.md#interactive-setup-for-github-copilot-chat).
 
 Already installed? Use the [prompt picker](docs/prompt-picker.md) or copy a
 catalog template, then add any missing skill directories.

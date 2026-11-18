@@ -22,8 +22,8 @@ matching checkout. You do not need to clone the auditor manually.
 
 3) Complete the prompts
 - target repo URL/path
-- what you want to do: press Enter for a source-only audit, or choose a specialist
-  such as audit-observability to review telemetry and alert readiness
+- choose a category, then a workflow: press Enter at both menus for a
+  source-only audit, or choose category 4 then workflow 9 for observability
 - optional focus (setup selects the required skills for your workflow)
 - optional email/Teams delivery
 

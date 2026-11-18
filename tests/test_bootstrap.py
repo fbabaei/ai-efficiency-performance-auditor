@@ -106,7 +106,7 @@ class BootstrapTests:
         git(self.source, "-c", "user.name=Bootstrap Test", "-c", "user.email=test@example.invalid",
             "-c", "commit.gpgsign=false", "commit", "-qm", "Fixture")
 
-        result = self.standalone_bootstrap(f"2\n{self.target}\naudit-observability\n\n\n")
+        result = self.standalone_bootstrap(f"2\n{self.target}\n4\naudit-observability\n\n\n")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         clone = self.root / "home/workspace/ai-efficiency-performance-auditor"
         self.assertTrue((clone / ".git").is_dir())
@@ -185,9 +185,19 @@ class BootstrapTests:
         self.assertFalse((self.target / SKILLS).exists())
 
     def test_interactive_defaults_to_base_without_skills_or_delivery(self):
-        result = self.bootstrap(answers="\n\n\n")
+        result = self.bootstrap(answers="\n\n\n\n")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("Observability readiness [audit-observability]", result.stdout)
+        category_menu, submenu = result.stdout.split("\n  Get started\n", 1)
+        self.assertNotIn("[audit-", category_menu)
+        self.assertNotIn("\x1b", category_menu + submenu)
+        self.assertIn("  4) Measurement and observability", category_menu)
+        self.assertEqual(
+            [line for line in submenu.splitlines() if "[audit-" in line],
+            [
+                "     1) Base source-only audit [audit-start]",
+                "     2) Summarize an existing report [audit-summary]",
+            ],
+        )
         prompt = (self.target / SCOUT).read_text(encoding="utf-8")
         self.assertIn("Use source code and configuration only.", prompt)
         self.assertNotIn("Scout delivery only:", prompt)
@@ -196,10 +206,19 @@ class BootstrapTests:
     def test_interactive_observability_copies_skill_and_preserves_catalog_safeguards(self):
         write(self.source / SKILLS / "observability-readiness" / "SKILL.md", "observability")
         result = self.bootstrap(
-            answers="invalid\naudit-observability\nretry telemetry\nreview@example.invalid\ny\n"
+            answers="invalid\n1\naudit-observability\nB\n4\naudit-observability\nretry telemetry\nreview@example.invalid\ny\n"
         )
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("Unknown workflow", result.stdout)
+        self.assertIn("Unknown category", result.stdout)
+        self.assertIn("Unknown workflow in this category", result.stdout)
+        submenu = result.stdout.split("\n  Measurement and observability\n", 1)[1]
+        self.assertEqual(
+            [line for line in submenu.splitlines() if "[audit-" in line],
+            [
+                "     8) Measurement readiness [audit-measurement]",
+                "     9) Observability readiness [audit-observability]",
+            ],
+        )
         prompt = (self.target / SCOUT).read_text(encoding="utf-8")
         for expected in (
             "Explicitly use observability-readiness",
@@ -220,7 +239,7 @@ class BootstrapTests:
     def test_interactive_comparison_installs_references_and_defaults_to_email_only(self):
         write(self.source / SKILLS / "audit-comparison" / "SKILL.md", "comparison")
         write(self.source / SKILLS / "audit-comparison" / "references" / "contract.md", "contract")
-        result = self.bootstrap(answers="10\n\nreview@example.invalid\n\n")
+        result = self.bootstrap(answers="5\n10\n\nreview@example.invalid\n\n")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         prompt = (self.target / SCOUT).read_text(encoding="utf-8")
         self.assertIn("compare these supplied reports only", prompt)
@@ -229,10 +248,11 @@ class BootstrapTests:
         self.assertTrue((self.target / SKILLS / "audit-comparison/references/contract.md").is_file())
 
     def test_interactive_cancel_does_not_install(self):
-        result = self.bootstrap(answers="0\n")
-        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertIn("Setup cancelled.", result.stdout)
-        self.assert_no_install()
+        for answers in ("0\n", "4\n0\n"):
+            result = self.bootstrap(answers=answers)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn("Setup cancelled.", result.stdout)
+            self.assert_no_install()
 
     def test_interactive_deep_review_installs_all_required_skills(self):
         required = {
@@ -241,7 +261,7 @@ class BootstrapTests:
         }
         for skill in required:
             write(self.source / SKILLS / skill / "SKILL.md", skill)
-        result = self.bootstrap("context-retrieval-review", answers="audit-deep\n\n\n")
+        result = self.bootstrap("context-retrieval-review", answers="6\naudit-deep\n\n\n")
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         prompt = (self.target / SCOUT).read_text(encoding="utf-8")
         self.assertEqual({p.name for p in (self.target / SKILLS).iterdir()}, required)

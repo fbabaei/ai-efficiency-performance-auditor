@@ -100,6 +100,10 @@ Format:
 
 See `docs/WORKFLOW-COPILOT-SCOUT-EXAMPLE.md` for a filled end-to-end example (task definition, Copilot prompt, Scout prompt, and done checklist).
 
+To run an audit entirely in GitHub Copilot Chat in VS Code, follow the
+[interactive setup quick start](docs/quick-start.md#interactive-setup-for-github-copilot-chat).
+Skip Scout delivery when using that flow.
+
 For Scout-led audit execution and outbound delivery (email + Teams), see:
 `docs/SCOUT-AUDIT-DELIVERY-WORKFLOW.md`.
 
