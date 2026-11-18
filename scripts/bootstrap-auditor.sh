@@ -32,6 +32,8 @@ Options:
   --no-teams-notification       Do not include "and teams" in generated Scout command
   -h, --help                    Show this help
 
+Existing install paths are never overwritten. Move them aside before reinstalling.
+
 Examples:
   ./scripts/bootstrap-auditor.sh \
     --target-repo-url https://github.com/contoso/my-app.git \
@@ -103,16 +105,46 @@ yes_default_true() {
 }
 
 ensure_directory() {
-  mkdir -p "$1"
+  mkdir -p -- "$1"
+}
+
+fail() {
+  printf '%s\n' "$*" >&2
+  exit 1
+}
+
+valid_path_name() {
+  local LC_ALL=C
+  [[ "$1" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ && "$1" != *. ]] &&
+    [[ ! "$1" =~ ^([Cc][Oo][Nn]|[Pp][Rr][Nn]|[Aa][Uu][Xx]|[Nn][Uu][Ll]|[Cc][Oo][Mm][1-9]|[Ll][Pp][Tt][1-9])(\.|$) ]]
+}
+
+is_repo_root() {
+  local info
+  info="$(git -C "$1" rev-parse --is-inside-work-tree --show-prefix 2>/dev/null)" &&
+    [[ "$info" == true ]]
+}
+
+check_directory() {
+  local path="$1"
+  if [[ -L "$path" || ( -e "$path" && ! -d "$path" ) ]]; then
+    fail "Expected a real directory, not a link or other entry: $path"
+  fi
+}
+
+check_new_path() {
+  if [[ -e "$1" || -L "$1" ]]; then
+    fail "Install path already exists; move it aside before rerunning: $1"
+  fi
 }
 
 resolve_repo_name() {
   local url="$1"
   local trimmed="${url%/}"
   local name
-  name="$(basename "$trimmed")"
+  name="$(basename -- "$trimmed")"
   name="${name%.git}"
-  if [[ -z "$name" ]]; then
+  if ! valid_path_name "$name"; then
     echo "Could not infer repository name from URL: $url" >&2
     exit 1
   fi
@@ -122,8 +154,9 @@ resolve_repo_name() {
 ensure_repo() {
   local local_path="$1"
   local repo_url="$2"
+  check_directory "$local_path"
   if [[ -d "$local_path" ]]; then
-    if [[ ! -d "$local_path/.git" ]]; then
+    if ! is_repo_root "$local_path"; then
       echo "Path exists but is not a git repository: $local_path" >&2
       exit 1
     fi
@@ -131,13 +164,12 @@ ensure_repo() {
     git -C "$local_path" pull --ff-only
     return
   fi
-  ensure_directory "$(dirname "$local_path")"
+  ensure_directory "$(dirname -- "$local_path")"
   echo "Cloning repository: $repo_url -> $local_path"
-  git clone "$repo_url" "$local_path"
+  git clone -- "$repo_url" "$local_path"
 }
 
 working_root="${HOME}/workspace"
-ensure_directory "$working_root"
 
 if [[ -z "$target_repo_path" && -z "$target_repo_url" ]]; then
   if [[ "$interactive" -ne 1 ]]; then
@@ -166,7 +198,7 @@ if [[ "$interactive" -eq 1 ]]; then
     include_service_performance_skill=1
   fi
 
-  if [[ "${#skills[@]}" -eq 0 ]]; then
+  if [[ -z "${skills[0]+x}" ]]; then
     read -r -p "Additional skills (comma-separated, optional): " extra_skills
     if [[ -n "${extra_skills// }" ]]; then
       IFS=',' read -r -a parsed <<< "$extra_skills"
@@ -192,13 +224,34 @@ if [[ "$interactive" -eq 1 ]]; then
   fi
 fi
 
+if [[ "$include_service_performance_skill" -eq 1 ]]; then
+  skills+=("service-performance-review")
+fi
+
+validate_skill_name() {
+  local LC_ALL=C
+  if ! valid_path_name "$1" || [[ ! "$1" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+    fail "Invalid skill name '$1': use lowercase ASCII letters, digits and hyphens, starting with a letter or digit."
+  fi
+}
+
+unique_skills=()
+if [[ -n "${skills[0]+x}" ]]; then
+  for skill_name in "${skills[@]}"; do
+    validate_skill_name "$skill_name"
+  done
+  while IFS= read -r skill_name; do
+    unique_skills+=("$skill_name")
+  done < <(printf '%s\n' "${skills[@]}" | awk '!seen[$0]++')
+fi
+
 resolved_audit_target=""
 if [[ -z "$target_repo_path" ]]; then
   target_name="$(resolve_repo_name "$target_repo_url")"
   target_repo_path="${working_root}/${target_name}"
   ensure_repo "$target_repo_path" "$target_repo_url"
   resolved_audit_target="$target_repo_url"
-elif [[ ! -d "$target_repo_path/.git" ]]; then
+elif ! is_repo_root "$target_repo_path"; then
   echo "Target path is not a git repository: $target_repo_path" >&2
   exit 1
 else
@@ -209,40 +262,40 @@ if [[ -z "$source_repo_path" ]]; then
   source_name="$(resolve_repo_name "$source_repo_url")"
   source_repo_path="${working_root}/${source_name}"
   ensure_repo "$source_repo_path" "$source_repo_url"
-elif [[ ! -d "$source_repo_path/.git" ]]; then
+elif ! is_repo_root "$source_repo_path"; then
   echo "Source path is not a git repository: $source_repo_path" >&2
   exit 1
 fi
 
-source_agent="${source_repo_path}/.github/agents/ai-efficiency-performance-auditor.agent.md"
-if [[ ! -f "$source_agent" ]]; then
-  echo "Agent definition not found in source repo: $source_agent" >&2
-  exit 1
-fi
-
+source_repo_path="$(cd -P -- "$source_repo_path" && pwd -P)"
+target_repo_path="$(cd -P -- "$target_repo_path" && pwd -P)"
+agent_name="ai-efficiency-performance-auditor.agent.md"
+source_agent="${source_repo_path}/.github/agents/${agent_name}"
 target_agents_dir="${target_repo_path}/.github/agents"
-ensure_directory "$target_agents_dir"
-cp -f "$source_agent" "${target_agents_dir}/ai-efficiency-performance-auditor.agent.md"
-echo "Copied agent definition to ${target_agents_dir}"
+target_agent="${target_agents_dir}/${agent_name}"
+target_skills_root="${target_repo_path}/.github/skills"
+command_file="${target_repo_path}/SCOUT-AUDIT-COMMAND.txt"
 
-if [[ "$include_service_performance_skill" -eq 1 ]]; then
-  skills+=("service-performance-review")
-fi
+# Preflight every requested input and output before creating install paths.
+check_directory "${source_repo_path}/.github"
+check_directory "${source_repo_path}/.github/agents"
+[[ -f "$source_agent" && ! -L "$source_agent" ]] ||
+  fail "Agent definition must be a regular file in the source repo: $source_agent"
+check_directory "${target_repo_path}/.github"
+check_directory "$target_agents_dir"
+check_new_path "$target_agent"
+check_new_path "$command_file"
 
-if [[ "${#skills[@]}" -gt 0 ]]; then
-  mapfile -t unique_skills < <(printf '%s\n' "${skills[@]}" | sed '/^\s*$/d' | awk '!seen[$0]++')
-  target_skills_root="${target_repo_path}/.github/skills"
-  ensure_directory "$target_skills_root"
+if [[ -n "${unique_skills[0]+x}" ]]; then
+  check_directory "${source_repo_path}/.github/skills"
+  check_directory "$target_skills_root"
   for skill_name in "${unique_skills[@]}"; do
     source_skill="${source_repo_path}/.github/skills/${skill_name}"
-    if [[ ! -d "$source_skill" ]]; then
-      echo "Requested skill not found in source repo: $source_skill" >&2
-      exit 1
-    fi
-    target_skill="${target_skills_root}/${skill_name}"
-    rm -rf "$target_skill"
-    cp -R "$source_skill" "$target_skill"
-    echo "Copied skill: $skill_name"
+    check_directory "$source_skill"
+    [[ -d "$source_skill" ]] || fail "Requested skill not found in source repo: $source_skill"
+    unsafe_entry="$(find "$source_skill" ! -type d ! -type f -print -quit)"
+    [[ -z "$unsafe_entry" ]] || fail "Skill contains a link or non-regular entry: $unsafe_entry"
+    check_new_path "${target_skills_root}/${skill_name}"
   done
 fi
 
@@ -262,12 +315,24 @@ compose_scout_command() {
   fi
 }
 
+scout_command="$(compose_scout_command "$resolved_audit_target" "$audit_focus" "$audit_email_recipient" "$include_teams_notification")"
+set -o noclobber
+ensure_directory "$target_agents_dir"
+cat -- "$source_agent" > "$target_agent"
+echo "Copied agent definition to ${target_agents_dir}"
+if [[ -n "${unique_skills[0]+x}" ]]; then
+  ensure_directory "$target_skills_root"
+  for skill_name in "${unique_skills[@]}"; do
+    target_skill="${target_skills_root}/${skill_name}"
+    mkdir -- "$target_skill"
+    cp -R -- "${source_repo_path}/.github/skills/${skill_name}/." "$target_skill"
+    echo "Copied skill: $skill_name"
+  done
+fi
+printf '%s\n' "$scout_command" > "$command_file"
 echo
 echo "Bootstrap complete."
 echo "Target repo: $target_repo_path"
-scout_command="$(compose_scout_command "$resolved_audit_target" "$audit_focus" "$audit_email_recipient" "$include_teams_notification")"
-command_file="${target_repo_path}/SCOUT-AUDIT-COMMAND.txt"
-printf '%s\n' "$scout_command" > "$command_file"
 echo "Scout command saved: $command_file"
 echo
 echo "Run this in Scout:"
