@@ -18,5 +18,9 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_DIR%bootstrap-auditor.ps1
 exit /b %ERRORLEVEL%
 
 :run_bash
+if /I "%~1"=="-Interactive" if "%~2"=="" (
+    bash "%SCRIPT_DIR%bootstrap-auditor.sh" --interactive
+    exit /b
+)
 bash "%SCRIPT_DIR%bootstrap-auditor.sh" %*
 exit /b %ERRORLEVEL%

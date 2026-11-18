@@ -13,11 +13,12 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
-$script:ProvidedIncludeServiceSkill = $PSBoundParameters.ContainsKey("IncludeServicePerformanceSkill")
-$script:ProvidedSkills = $PSBoundParameters.ContainsKey("Skills")
+$script:ProvidedSourceUrl = $PSBoundParameters.ContainsKey("SourceRepoUrl")
 $script:ProvidedAuditFocus = $PSBoundParameters.ContainsKey("AuditFocus")
 $script:ProvidedAuditRecipient = $PSBoundParameters.ContainsKey("AuditEmailRecipient")
 $script:ProvidedTeamsPreference = $PSBoundParameters.ContainsKey("IncludeTeamsNotification")
+$script:WorkflowPrompt = ""
+$script:ExtraFocus = ""
 
 function Assert-GitAvailable {
     if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
@@ -98,6 +99,33 @@ function Compose-ScoutAuditCommand(
     return $command
 }
 
+function Select-AuditWorkflow {
+    $workflows = @(Get-Content -LiteralPath (Join-Path $PSScriptRoot "audit-workflows.txt") |
+        ForEach-Object {
+            $fields = $_.Split("|")
+            [pscustomobject]@{ Id = $fields[0]; Title = $fields[1]; Skills = $fields[2] }
+        })
+    Write-Host "What would you like to do?"
+    for ($i = 0; $i -lt $workflows.Count; $i++) {
+        $entry = $workflows[$i]
+        Write-Host "  $($i + 1)) $($entry.Title) [$($entry.Id)]"
+    }
+    Write-Host "  0) Cancel"
+    while ($true) {
+        $answer = (Read-Host "Choose a number or workflow ID [1]").Trim()
+        if ($answer -eq "0") { Write-Host "Setup cancelled."; exit 0 }
+        if (-not $answer) { $answer = "1" }
+        $number = 0
+        if ([int]::TryParse($answer, [ref]$number) -and $number -ge 1 -and $number -le $workflows.Count) {
+            return $workflows[$number - 1]
+        }
+        foreach ($entry in $workflows) {
+            if ($answer -ceq $entry.Id) { return $entry }
+        }
+        Write-Host "Unknown workflow. Enter a listed number or ID."
+    }
+}
+
 function Run-InteractivePrompts {
     if ([string]::IsNullOrWhiteSpace($script:TargetRepoPath) -and [string]::IsNullOrWhiteSpace($script:TargetRepoUrl)) {
         Write-Host "Choose target mode:"
@@ -115,26 +143,23 @@ function Run-InteractivePrompts {
         }
     }
 
-    if (-not $script:ProvidedIncludeServiceSkill) {
-        $include = (Read-Host "Include service-performance-review skill? (Y/n)").Trim()
-        if ([string]::IsNullOrWhiteSpace($include) -or $include.ToLowerInvariant() -eq "y" -or $include.ToLowerInvariant() -eq "yes") {
-            $script:IncludeServicePerformanceSkill = $true
-        }
+    $workflow = Select-AuditWorkflow
+    $catalog = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot "../docs/usage-prompts.md")
+    $sections = @($catalog -csplit '(?m)^## ' | Where-Object {
+        ($_ -split '\r?\n', 2)[0] -ceq $workflow.Title
+    })
+    $blocks = if ($sections.Count -eq 1) {
+        [regex]::Matches($sections[0], '(?ms)^```text\r?\n(.*?)^```[ \t]*\r?$')
     }
+    $blocks = @($blocks)
+    if ($blocks.Count -ne 1 -or -not $blocks[0].Groups[1].Value.Trim()) {
+        throw "Expected one nonempty prompt for $($workflow.Title)."
+    }
+    $script:WorkflowPrompt = $blocks[0].Groups[1].Value.TrimEnd()
+    if ($workflow.Skills) { $script:Skills += $workflow.Skills.Split(",") }
+    Write-Host "Selected: $($workflow.Title). Required skills: $(if ($workflow.Skills) { $workflow.Skills } else { 'none' })."
 
-    if (-not $script:ProvidedSkills -and ($script:Skills | Measure-Object).Count -eq 0) {
-        $extraSkills = Read-Host "Additional skills (comma-separated, optional)"
-        if (-not [string]::IsNullOrWhiteSpace($extraSkills)) {
-            $script:Skills = $extraSkills.Split(",") | ForEach-Object { $_.Trim() } | Where-Object { $_ }
-        }
-    }
-
-    if (-not $script:ProvidedAuditFocus) {
-        $focus = Read-Host "Audit focus (default: latency, token/tool-call efficiency, retries)"
-        if (-not [string]::IsNullOrWhiteSpace($focus)) {
-            $script:AuditFocus = $focus
-        }
-    }
+    $script:ExtraFocus = if ($script:ProvidedAuditFocus) { $script:AuditFocus } else { Read-Host "Additional focus within this workflow (optional)" }
 
     if (-not $script:ProvidedAuditRecipient) {
         $recipient = Read-Host "Email recipient for Scout delivery (optional)"
@@ -143,14 +168,8 @@ function Run-InteractivePrompts {
         }
     }
 
-    if (-not $script:ProvidedTeamsPreference) {
-        $teams = (Read-Host "Include Teams notification in Scout command? (Y/n)").Trim()
-        if ($teams.ToLowerInvariant() -eq "n" -or $teams.ToLowerInvariant() -eq "no") {
-            $script:IncludeTeamsNotification = $false
-        }
-        else {
-            $script:IncludeTeamsNotification = $true
-        }
+    if (-not $script:ProvidedTeamsPreference -and -not [string]::IsNullOrWhiteSpace($script:AuditEmailRecipient)) {
+        $script:IncludeTeamsNotification = (Read-Host "Include a Teams completion notification? (y/N)").Trim() -match '\A(y|yes)\z'
     }
 }
 
@@ -164,6 +183,9 @@ if ([string]::IsNullOrWhiteSpace($TargetRepoPath) -and [string]::IsNullOrWhiteSp
 
 if ($Interactive) {
     Run-InteractivePrompts
+    if (-not $SourceRepoPath -and -not $ProvidedSourceUrl) {
+        $SourceRepoPath = Split-Path -Parent $PSScriptRoot
+    }
 }
 
 $skillsToCopy = @(
@@ -242,7 +264,21 @@ if ($skillsToCopy.Count -gt 0) {
     }
 }
 
-$scoutCommand = Compose-ScoutAuditCommand -AuditTarget $resolvedTargetForAudit -Focus $AuditFocus -EmailRecipient $AuditEmailRecipient -IncludeTeams $IncludeTeamsNotification
+if ($Interactive) {
+    $scoutCommand = "Use this local application repository (do not clone or update it): $TargetRepoPath`nUse .github/agents/$agentName and any explicitly requested skill files as audit guidance. Do not broaden the selected evidence scope.`n`n$WorkflowPrompt"
+    if (-not [string]::IsNullOrWhiteSpace($ExtraFocus)) {
+        $scoutCommand += "`n`nAdditional focus within the selected scope: $ExtraFocus"
+    }
+    if (-not [string]::IsNullOrWhiteSpace($AuditEmailRecipient)) {
+        $scoutCommand += "`n`nScout delivery only: After the audit, confirm the recipient and approved summary content with me before emailing $AuditEmailRecipient. Do not send source code or raw evidence."
+        if ($IncludeTeamsNotification) {
+            $scoutCommand += " After successful email delivery, send the same recipient a brief Teams completion notification without audit details."
+        }
+    }
+}
+else {
+    $scoutCommand = Compose-ScoutAuditCommand -AuditTarget $resolvedTargetForAudit -Focus $AuditFocus -EmailRecipient $AuditEmailRecipient -IncludeTeams $IncludeTeamsNotification
+}
 Ensure-Directory $targetAgentsDir
 [IO.File]::Copy($sourceAgent, $targetAgent)
 Write-Host "Copied agent definition to $targetAgentsDir"
@@ -269,5 +305,6 @@ Write-Host "Bootstrap complete."
 Write-Host "Target repo: $TargetRepoPath"
 Write-Host "Scout command saved: $commandFile"
 Write-Host ""
-Write-Host "Run this in Scout:"
+if ($Interactive) { Write-Host "Review and replace placeholders before pasting into Scout:" }
+else { Write-Host "Run this in Scout:" }
 Write-Host $scoutCommand

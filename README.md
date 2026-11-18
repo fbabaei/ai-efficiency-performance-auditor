@@ -98,11 +98,23 @@ Linux/macOS interactive mode:
 ./scripts/bootstrap-auditor.sh --interactive
 ```
 
-The script writes a ready-to-run Scout command to:
+1. Choose a target Git checkout or repository URL.
+2. Pick a workflow by number or ID. Press **Enter** for a base source-only audit,
+   or choose a specialist review such as `audit-observability` for telemetry and
+   alert readiness, `audit-context` for retrieval, `audit-plan` for developer
+   handoff, or `audit-compare` for baseline/candidate comparison. The menu
+   includes all [15 catalog workflows](docs/prompt-picker.md#picker-names),
+   and setup copies the selected workflow's required skills automatically.
+3. Optionally add focus and enter a Scout delivery email. Blank means no email;
+   a Teams completion notification is opt-in when an email is provided.
+4. Open `<target-repo>/SCOUT-AUDIT-COMMAND.txt`, replace the placeholders with
+   your actual inputs, and review it before pasting into Scout. For observability,
+   keep either report-only or scoped source. The setup does not run the audit
+   or send anything. For Copilot Chat, use the matching
+   [catalog template](docs/usage-prompts.md) without Scout delivery instructions.
 
-- `<target-repo>/SCOUT-AUDIT-COMMAND.txt`
-
-and prints the same command in the terminal.
+Already installed? Use the [prompt picker](docs/prompt-picker.md) or copy a
+catalog template, then add any missing skill directories.
 
 Both scripts accept local Git checkout roots, including linked worktrees.
 Pass skills by folder name only (lowercase ASCII letters, digits and hyphens,

@@ -4,6 +4,12 @@ Use this workflow when you want Scout to run an AI efficiency/performance audit 
 
 ## Quick start for a new user
 
+The [interactive bootstrap](../README.md#one-command-bootstrap-for-new-users-auto-shell)
+offers a goal-based menu and saves a Scout prompt to `SCOUT-AUDIT-COMMAND.txt`
+in the target checkout. Pick a workflow, review the generated prompt, and fill
+in its evidence paths before using it. Delivery is optional and handled by
+Scout, not by the installer or the auditor agent.
+
 1. Provide either a local repository path or a GitHub repository URL.
 2. Open the local repo in VS Code with GitHub Copilot enabled.
 3. Select **AI Efficiency & Performance Auditor** in Copilot Chat.

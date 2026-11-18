@@ -20,14 +20,16 @@ Linux/macOS
 
 3) Complete the prompts
 - target repo URL/path
-- optional skills
-- audit focus
+- what you want to do: press Enter for a source-only audit, or choose a specialist
+  such as audit-observability to review telemetry and alert readiness
+- optional focus (setup selects the required skills for your workflow)
 - optional email/Teams delivery
 
 4) Copy the generated Scout command
 Also saved in: <target-repo>/SCOUT-AUDIT-COMMAND.txt
 
-5) Paste the command into Scout and run it
+5) Replace the placeholders, review the scope, then paste the prompt into Scout.
 
-That's it - setup and a ready-to-run audit command are handled automatically.
+Setup installs the agent and skills and drafts the prompt. It does not run the
+audit or send a report.
 ```

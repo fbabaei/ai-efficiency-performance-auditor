@@ -2,6 +2,9 @@
 
 ## 0.5.0 - Unreleased
 
+- Add a goal-based interactive bootstrap menu for all 15 audit workflows.
+  Install the chosen skills and draft a scoped Scout prompt from the shared
+  catalog, with optional email and Teams delivery instructions.
 - Add a separate, optional VS Code prompt-picker extension covering all 15
   catalog workflows. Slash-style names in its picker insert editable, unsent
   Chat drafts with replacement consent and explicit errors. Generate bundled

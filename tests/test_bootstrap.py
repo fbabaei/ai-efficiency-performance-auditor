@@ -41,7 +41,7 @@ class BootstrapTests:
         write(self.source / SKILLS / SKILL / "references" / "notes.md", "notes")
         write(self.source / SKILLS / SKILL / "SKILL.md", "skill")
 
-    def bootstrap(self, *skills, source=None, target=None):
+    def bootstrap(self, *skills, source=None, target=None, answers=None):
         source = self.source if source is None else source
         target = self.target if target is None else target
         if self.shell_type == "bash":
@@ -52,6 +52,8 @@ class BootstrapTests:
             ]
             for skill in skills:
                 args.extend(["--skill", skill])
+            if answers is not None:
+                args.append("--interactive")
         else:
             def quoted(value):
                 return "'" + str(value).replace("'", "''") + "'"
@@ -62,9 +64,12 @@ class BootstrapTests:
             )
             if skills:
                 command += " -Skills " + ",".join(map(quoted, skills))
-            args = ["-NoProfile", "-NonInteractive", "-Command", command]
+            if answers is not None:
+                args = ["-NoProfile", "-Command", command + " -Interactive"]
+            else:
+                args = ["-NoProfile", "-NonInteractive", "-Command", command]
         return subprocess.run(
-            [self.shell, *args], capture_output=True, text=True, timeout=30
+            [self.shell, *args], input=answers, capture_output=True, text=True, timeout=30
         )
 
     def assert_rejected(self, result, message):
@@ -135,6 +140,70 @@ class BootstrapTests:
         self.assertTrue((self.target / AGENT).is_file())
         self.assertTrue((self.target / SCOUT).is_file())
         self.assertFalse((self.target / SKILLS).exists())
+
+    def test_interactive_defaults_to_base_without_skills_or_delivery(self):
+        result = self.bootstrap(answers="\n\n\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Observability readiness [audit-observability]", result.stdout)
+        prompt = (self.target / SCOUT).read_text(encoding="utf-8")
+        self.assertIn("Use source code and configuration only.", prompt)
+        self.assertNotIn("Scout delivery only:", prompt)
+        self.assertFalse((self.target / SKILLS).exists())
+
+    def test_interactive_observability_copies_skill_and_preserves_catalog_safeguards(self):
+        write(self.source / SKILLS / "observability-readiness" / "SKILL.md", "observability")
+        result = self.bootstrap(
+            answers="invalid\naudit-observability\nretry telemetry\nreview@example.invalid\ny\n"
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Unknown workflow", result.stdout)
+        prompt = (self.target / SCOUT).read_text(encoding="utf-8")
+        for expected in (
+            "Explicitly use observability-readiness",
+            "Report only: Use <exact existing report path>",
+            "Scoped source: Start at <exact source entry point>",
+            "exact-path sanitization gate before any payload access",
+            "Rate alert readiness separately",
+            "Additional focus within the selected scope: retry telemetry",
+            "before emailing review@example.invalid",
+            "After successful email delivery",
+        ):
+            self.assertIn(expected, prompt)
+        self.assertEqual(
+            [p.name for p in (self.target / SKILLS).iterdir()],
+            ["observability-readiness"],
+        )
+
+    def test_interactive_comparison_installs_references_and_defaults_to_email_only(self):
+        write(self.source / SKILLS / "audit-comparison" / "SKILL.md", "comparison")
+        write(self.source / SKILLS / "audit-comparison" / "references" / "contract.md", "contract")
+        result = self.bootstrap(answers="10\n\nreview@example.invalid\n\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        prompt = (self.target / SCOUT).read_text(encoding="utf-8")
+        self.assertIn("compare these supplied reports only", prompt)
+        self.assertIn("before emailing review@example.invalid", prompt)
+        self.assertNotIn("send the same recipient a brief Teams", prompt)
+        self.assertTrue((self.target / SKILLS / "audit-comparison/references/contract.md").is_file())
+
+    def test_interactive_cancel_does_not_install(self):
+        result = self.bootstrap(answers="0\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Setup cancelled.", result.stdout)
+        self.assert_no_install()
+
+    def test_interactive_deep_review_installs_all_required_skills(self):
+        required = {
+            "orchestration-efficiency-review", "context-retrieval-review",
+            "service-performance-review",
+        }
+        for skill in required:
+            write(self.source / SKILLS / skill / "SKILL.md", skill)
+        result = self.bootstrap("context-retrieval-review", answers="audit-deep\n\n\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        prompt = (self.target / SCOUT).read_text(encoding="utf-8")
+        self.assertEqual({p.name for p in (self.target / SKILLS).iterdir()}, required)
+        for skill in required:
+            self.assertIn(skill, prompt)
 
     def test_accepts_linked_worktree_roots_and_deduplicates_skills(self):
         for repo, name in ((self.source, "source worktree"), (self.target, "target worktree")):

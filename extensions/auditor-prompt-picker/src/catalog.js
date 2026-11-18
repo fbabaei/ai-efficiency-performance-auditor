@@ -1,20 +1,13 @@
-const COMMANDS = [
-  ["audit-start", "Base source-only audit", []],
-  ["audit-summary", "Summarize an existing report", []],
-  ["audit-context", "Context and retrieval", ["context-retrieval-review"]],
-  ["audit-orchestration", "Orchestration efficiency", ["orchestration-efficiency-review"]],
-  ["audit-service", "Service performance", ["service-performance-review"]],
-  ["audit-plan", "Recommendation planning", ["recommendation-planning"]],
-  ["audit-change", "Change-impact review", ["change-impact-review"]],
-  ["audit-measurement", "Measurement readiness", ["measurement-readiness"]],
-  ["audit-observability", "Observability readiness", ["observability-readiness"]],
-  ["audit-compare", "Baseline/candidate comparison", ["audit-comparison"]],
-  ["audit-verify", "Finding-level verification", ["audit-comparison"]],
-  ["audit-budgets", "Efficiency-budget interpretation", ["efficiency-budget-review"]],
-  ["audit-focused", "Focused first audit", ["orchestration-efficiency-review", "context-retrieval-review"]],
-  ["audit-deep", "Deep analysis", ["orchestration-efficiency-review", "context-retrieval-review", "service-performance-review"]],
-  ["audit-traces", "Trace-only audit", []],
-];
+const fs = require("node:fs");
+const path = require("node:path");
+
+const COMMANDS = fs.readFileSync(
+  path.resolve(__dirname, "../../../scripts/audit-workflows.txt"),
+  "utf8",
+).trim().split(/\r?\n/).map((line) => {
+  const [command, title, skills] = line.split("|");
+  return [command, title, skills ? skills.split(",") : []];
+});
 
 function parseCatalog(markdown) {
   const sections = markdown.replace(/\r\n/g, "\n").split(/^## /m).slice(1);

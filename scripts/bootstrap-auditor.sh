@@ -5,11 +5,15 @@ target_repo_path=""
 target_repo_url=""
 source_repo_path=""
 source_repo_url="https://github.com/fbabaei/ai-efficiency-performance-auditor.git"
+source_url_provided=0
 include_service_performance_skill=0
 interactive=0
 audit_focus="latency, token/tool-call efficiency, retries"
+focus_provided=0
 audit_email_recipient=""
+recipient_provided=0
 include_teams_notification=1
+teams_preference_provided=0
 skills=()
 
 usage() {
@@ -25,7 +29,7 @@ Options:
   --skill <name>                Optional skill folder to copy (repeatable)
   --include-service-performance-skill
                                 Also copy service-performance-review skill
-  --interactive                 Prompt for missing values and output ready Scout command
+  --interactive                 Choose an audit workflow and generate a Scout prompt
   --audit-focus <text>          Focus text for generated Scout command
   --audit-email-recipient <mail>
                                 Optional email recipient for generated Scout command
@@ -55,7 +59,7 @@ while [[ $# -gt 0 ]]; do
     --source-repo-path)
       source_repo_path="${2:-}"; shift 2 ;;
     --source-repo-url)
-      source_repo_url="${2:-}"; shift 2 ;;
+      source_repo_url="${2:-}"; source_url_provided=1; shift 2 ;;
     --skill)
       skills+=("${2:-}"); shift 2 ;;
     --include-service-performance-skill)
@@ -63,11 +67,11 @@ while [[ $# -gt 0 ]]; do
     --interactive)
       interactive=1; shift ;;
     --audit-focus)
-      audit_focus="${2:-}"; shift 2 ;;
+      audit_focus="${2:-}"; focus_provided=1; shift 2 ;;
     --audit-email-recipient)
-      audit_email_recipient="${2:-}"; shift 2 ;;
+      audit_email_recipient="${2:-}"; recipient_provided=1; shift 2 ;;
     --no-teams-notification)
-      include_teams_notification=0; shift ;;
+      include_teams_notification=0; teams_preference_provided=1; shift ;;
     -h|--help)
       usage; exit 0 ;;
     *)
@@ -82,26 +86,10 @@ if ! command -v git >/dev/null 2>&1; then
   exit 1
 fi
 
-prompt_if_empty() {
-  local current="$1"
-  local prompt="$2"
-  if [[ -n "$current" ]]; then
-    echo "$current"
-    return
-  fi
-  read -r -p "$prompt: " input
-  echo "$input"
-}
-
-yes_default_true() {
-  local prompt="$1"
-  local answer
-  read -r -p "$prompt (Y/n): " answer
-  answer="$(printf '%s' "$answer" | tr '[:upper:]' '[:lower:]')"
-  if [[ -z "$answer" || "$answer" == "y" || "$answer" == "yes" ]]; then
-    return 0
-  fi
-  return 1
+read_prompt() {
+  local value
+  read -r -p "$1: " value || fail "Input ended before setup was complete."
+  printf -v "$2" '%s' "${value%$'\r'}"
 }
 
 ensure_directory() {
@@ -179,48 +167,81 @@ if [[ -z "$target_repo_path" && -z "$target_repo_url" ]]; then
 fi
 
 if [[ "$interactive" -eq 1 ]]; then
+  script_dir="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
   if [[ -z "$target_repo_path" && -z "$target_repo_url" ]]; then
     echo "Choose target mode:"
     echo "  1) GitHub repository URL"
     echo "  2) Local repository path"
-    read -r -p "Enter 1 or 2: " mode
+    read_prompt "Enter 1 or 2" mode
     if [[ "$mode" == "1" ]]; then
-      target_repo_url="$(prompt_if_empty "$target_repo_url" "Target repository URL")"
+      read_prompt "Target repository URL" target_repo_url
     elif [[ "$mode" == "2" ]]; then
-      target_repo_path="$(prompt_if_empty "$target_repo_path" "Target local repository path")"
+      read_prompt "Target local repository path" target_repo_path
     else
       echo "Invalid selection. Enter 1 or 2." >&2
       exit 1
     fi
   fi
 
-  if [[ "$include_service_performance_skill" -eq 0 ]] && yes_default_true "Include service-performance-review skill?"; then
-    include_service_performance_skill=1
-  fi
-
-  if [[ -z "${skills[0]+x}" ]]; then
-    read -r -p "Additional skills (comma-separated, optional): " extra_skills
-    if [[ -n "${extra_skills// }" ]]; then
-      IFS=',' read -r -a parsed <<< "$extra_skills"
-      for item in "${parsed[@]}"; do
-        item="$(printf '%s' "$item" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
-        [[ -n "$item" ]] && skills+=("$item")
-      done
+  workflow_ids=() workflow_titles=() workflow_skills=()
+  echo "What would you like to do?"
+  while IFS='|' read -r id title required; do
+    required="${required%$'\r'}"
+    workflow_ids+=("$id")
+    workflow_titles+=("$title")
+    workflow_skills+=("$required")
+    printf '  %s) %s [%s]\n' "${#workflow_ids[@]}" "$title" "$id"
+  done < "$script_dir/audit-workflows.txt"
+  echo "  0) Cancel"
+  selected=""
+  while [[ -z "$selected" ]]; do
+    read_prompt "Choose a number or workflow ID [1]" answer
+    answer="${answer:-1}"
+    if [[ "$answer" == 0 ]]; then
+      echo "Setup cancelled."
+      exit 0
     fi
+    for i in "${!workflow_ids[@]}"; do
+      if [[ "$answer" == "$((i + 1))" || "$answer" == "${workflow_ids[$i]}" ]]; then
+        selected="$i"
+        break
+      fi
+    done
+    [[ -n "$selected" ]] || echo "Unknown workflow. Enter a listed number or ID."
+  done
+  title="${workflow_titles[$selected]}"
+  required="${workflow_skills[$selected]}"
+  workflow_prompt="$(awk -v heading="## $title" '
+    { sub(/\r$/, "") }
+    /^## / {
+      if (section && opened) invalid = 1
+      section = ($0 == heading)
+      if (section) sections++
+    }
+    !section { next }
+    opened && /^```[ \t]*$/ { opened = 0; next }
+    !opened && /^```text$/ { opened = 1; blocks++; next }
+    opened { print; if ($0 ~ /[^ \t]/) nonempty = 1 }
+    END { if (sections != 1 || blocks != 1 || opened || invalid || !nonempty) exit 1 }
+  ' "$script_dir/../docs/usage-prompts.md")" || fail "Expected one nonempty prompt for $title."
+  if [[ -n "$required" ]]; then
+    IFS=',' read -r -a required_skills < <(printf '%s\n' "$required")
+    skills+=("${required_skills[@]}")
   fi
-
-  read -r -p "Audit focus (default: ${audit_focus}): " focus_input
-  if [[ -n "${focus_input// }" ]]; then
-    audit_focus="$focus_input"
+  printf 'Selected: %s. Required skills: %s.\n' "$title" "${required:-none}"
+  if [[ "$focus_provided" -eq 0 ]]; then
+    read_prompt "Additional focus within this workflow (optional)" audit_focus
   fi
-
-  read -r -p "Email recipient for Scout delivery (optional): " recipient_input
-  if [[ -n "${recipient_input// }" ]]; then
-    audit_email_recipient="$recipient_input"
+  if [[ "$recipient_provided" -eq 0 ]]; then
+    read_prompt "Email recipient for Scout delivery (optional)" audit_email_recipient
   fi
-
-  if ! yes_default_true "Include Teams notification in Scout command?"; then
+  if [[ -n "${audit_email_recipient//[[:space:]]/}" && "$teams_preference_provided" -eq 0 ]]; then
     include_teams_notification=0
+    read_prompt "Include a Teams completion notification? (y/N)" answer
+    case "$answer" in [yY]|[yY][eE][sS]) include_teams_notification=1 ;; esac
+  fi
+  if [[ -z "$source_repo_path" && "$source_url_provided" -eq 0 ]]; then
+    source_repo_path="$(dirname -- "$script_dir")"
   fi
 fi
 
@@ -315,7 +336,20 @@ compose_scout_command() {
   fi
 }
 
-scout_command="$(compose_scout_command "$resolved_audit_target" "$audit_focus" "$audit_email_recipient" "$include_teams_notification")"
+if [[ "$interactive" -eq 1 ]]; then
+  scout_command="$(printf 'Use this local application repository (do not clone or update it): %s\nUse .github/agents/%s and any explicitly requested skill files as audit guidance. Do not broaden the selected evidence scope.\n\n%s' "$target_repo_path" "$agent_name" "$workflow_prompt")"
+  if [[ -n "${audit_focus//[[:space:]]/}" ]]; then
+    scout_command+=$'\n\n'"Additional focus within the selected scope: $audit_focus"
+  fi
+  if [[ -n "${audit_email_recipient//[[:space:]]/}" ]]; then
+    scout_command+=$'\n\n'"Scout delivery only: After the audit, confirm the recipient and approved summary content with me before emailing $audit_email_recipient. Do not send source code or raw evidence."
+    if [[ "$include_teams_notification" -eq 1 ]]; then
+      scout_command+=" After successful email delivery, send the same recipient a brief Teams completion notification without audit details."
+    fi
+  fi
+else
+  scout_command="$(compose_scout_command "$resolved_audit_target" "$audit_focus" "$audit_email_recipient" "$include_teams_notification")"
+fi
 set -o noclobber
 ensure_directory "$target_agents_dir"
 cat -- "$source_agent" > "$target_agent"
@@ -335,5 +369,9 @@ echo "Bootstrap complete."
 echo "Target repo: $target_repo_path"
 echo "Scout command saved: $command_file"
 echo
-echo "Run this in Scout:"
+if [[ "$interactive" -eq 1 ]]; then
+  echo "Review and replace placeholders before pasting into Scout:"
+else
+  echo "Run this in Scout:"
+fi
 echo "$scout_command"
