@@ -39,6 +39,26 @@ Setup does not run the audit or send anything. For an existing installation,
 skip the bootstrap and use the matching template after installing any missing
 skills. For manual setup, follow the steps below.
 
+## Report-only review in Microsoft 365 Copilot Chat
+
+Use this option to summarize an existing audit report or identify gaps in its
+evidence. No bootstrap is needed. Pasting a prompt into Microsoft 365 Copilot
+Chat does not load the repository's `.github` agent or skills, give it access
+to your local Git checkout, or save results back to the repo. For a source-code
+audit, use GitHub Copilot Chat in VS Code as described above.
+
+1. In Microsoft 365 Copilot Chat, reference an approved report stored in
+   SharePoint or OneDrive that you have permission to access.
+2. Paste the prompt below, replacing the placeholder with the report link or
+   an in-chat reference to the document. Ask for the output in chat rather
+   than using the catalog's local file paths or report-save instructions.
+
+> Use only this audit report: `<SharePoint or OneDrive report link>`.
+> Summarize the key findings, recommended next steps, and missing evidence.
+> Cite the report sections, attribute claims to the report rather than treating
+> them as independently verified, and say if you cannot access the document.
+> Do not open referenced source files or traces. Return the summary in chat.
+
 ## What changed, in plain language?
 
 Instead of making one large agent do everything, we added optional modules
