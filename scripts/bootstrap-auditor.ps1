@@ -26,36 +26,58 @@ function Assert-GitAvailable {
 }
 
 function Ensure-Directory([string]$PathValue) {
-    if (-not (Test-Path -LiteralPath $PathValue)) {
-        New-Item -ItemType Directory -Path $PathValue -Force | Out-Null
+    [IO.Directory]::CreateDirectory($PathValue) | Out-Null
+}
+
+function Test-SafePathName([string]$Name) {
+    return ($Name -cmatch '\A[a-zA-Z0-9][a-zA-Z0-9._-]*\z' -and
+        -not $Name.EndsWith(".") -and $Name -notmatch '\A(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(\.|\z)')
+}
+
+function Test-RepoRoot([string]$PathValue) {
+    if (-not (Test-Path -LiteralPath $PathValue -PathType Container)) {
+        return $false
+    }
+    $info = & git -C $PathValue rev-parse --is-inside-work-tree --show-prefix 2>$null
+    return ($LASTEXITCODE -eq 0 -and ($info -join "`n").TrimEnd("`n") -ceq "true")
+}
+
+function Assert-DirectoryPath([string]$PathValue) {
+    $item = Get-Item -LiteralPath $PathValue -Force -ErrorAction SilentlyContinue
+    if ($null -ne $item -and (-not $item.PSIsContainer -or ($item.Attributes -band [IO.FileAttributes]::ReparsePoint))) {
+        throw "Expected a real directory, not a link or other entry: $PathValue"
+    }
+}
+
+function Assert-NewInstallPath([string]$PathValue) {
+    if ($null -ne (Get-Item -LiteralPath $PathValue -Force -ErrorAction SilentlyContinue)) {
+        throw "Install path already exists; move it aside before rerunning: $PathValue"
     }
 }
 
 function Resolve-RepoName([string]$RepoUrl) {
-    $name = [IO.Path]::GetFileNameWithoutExtension($RepoUrl.TrimEnd("/"))
-    if ([string]::IsNullOrWhiteSpace($name)) {
+    $name = ($RepoUrl.TrimEnd("/") -csplit '/')[-1] -creplace '\.git\z'
+    if (-not (Test-SafePathName $name)) {
         throw "Could not infer repository name from URL: $RepoUrl"
     }
     return $name
 }
 
 function Ensure-Repo([string]$LocalPath, [string]$RepoUrl) {
+    Assert-DirectoryPath $LocalPath
     if (Test-Path -LiteralPath $LocalPath) {
-        if (-not (Test-Path -LiteralPath (Join-Path $LocalPath ".git"))) {
+        if (-not (Test-RepoRoot $LocalPath)) {
             throw "Path exists but is not a git repository: $LocalPath"
         }
         Write-Host "Updating repository: $LocalPath"
         & git -C $LocalPath pull --ff-only
+        if ($LASTEXITCODE -ne 0) { throw "Git pull failed: $LocalPath" }
         return
     }
     Ensure-Directory -PathValue ([IO.Path]::GetDirectoryName($LocalPath))
     Write-Host "Cloning repository: $RepoUrl -> $LocalPath"
-    & git clone $RepoUrl $LocalPath
-}
-
-function Copy-DirectoryTree([string]$Source, [string]$Destination) {
-    Ensure-Directory -PathValue ([IO.Path]::GetDirectoryName($Destination))
-    Copy-Item -LiteralPath $Source -Destination $Destination -Recurse -Force
+    & git clone -- $RepoUrl $LocalPath
+    if ($LASTEXITCODE -ne 0) { throw "Git clone failed: $LocalPath" }
 }
 
 function Compose-ScoutAuditCommand(
@@ -144,8 +166,18 @@ if ($Interactive) {
     Run-InteractivePrompts
 }
 
+$skillsToCopy = @(
+    if ($IncludeServicePerformanceSkill) { "service-performance-review" }
+    foreach ($skill in $Skills) {
+        if ($skill -cnotmatch '\A[a-z0-9][a-z0-9-]*\z' -or -not (Test-SafePathName $skill)) {
+            throw "Invalid skill name '$skill': use lowercase ASCII letters, digits and hyphens, starting with a letter or digit."
+        }
+        $skill
+    }
+)
+$skillsToCopy = @($skillsToCopy | Select-Object -Unique)
+
 $workingRoot = Join-Path $HOME "workspace"
-Ensure-Directory -PathValue $workingRoot
 
 $resolvedTargetForAudit = ""
 if ([string]::IsNullOrWhiteSpace($TargetRepoPath)) {
@@ -154,7 +186,7 @@ if ([string]::IsNullOrWhiteSpace($TargetRepoPath)) {
     Ensure-Repo -LocalPath $TargetRepoPath -RepoUrl $TargetRepoUrl
     $resolvedTargetForAudit = $TargetRepoUrl
 }
-elseif (-not (Test-Path -LiteralPath (Join-Path $TargetRepoPath ".git"))) {
+elseif (-not (Test-RepoRoot $TargetRepoPath)) {
     throw "Target path is not a git repository: $TargetRepoPath"
 }
 else {
@@ -166,51 +198,75 @@ if ([string]::IsNullOrWhiteSpace($SourceRepoPath)) {
     $SourceRepoPath = Join-Path $workingRoot $sourceName
     Ensure-Repo -LocalPath $SourceRepoPath -RepoUrl $SourceRepoUrl
 }
-elseif (-not (Test-Path -LiteralPath (Join-Path $SourceRepoPath ".git"))) {
+elseif (-not (Test-RepoRoot $SourceRepoPath)) {
     throw "Source path is not a git repository: $SourceRepoPath"
 }
 
-$sourceAgent = Join-Path $SourceRepoPath ".github\agents\ai-efficiency-performance-auditor.agent.md"
-if (-not (Test-Path -LiteralPath $sourceAgent)) {
-    throw "Agent definition not found in source repo: $sourceAgent"
-}
+$SourceRepoPath = (Resolve-Path -LiteralPath $SourceRepoPath).ProviderPath
+$TargetRepoPath = (Resolve-Path -LiteralPath $TargetRepoPath).ProviderPath
+$agentName = "ai-efficiency-performance-auditor.agent.md"
+$sourceAgentsDir = Join-Path $SourceRepoPath ".github/agents"
+$sourceAgent = Join-Path $sourceAgentsDir $agentName
+$targetAgentsDir = Join-Path $TargetRepoPath ".github/agents"
+$targetAgent = Join-Path $targetAgentsDir $agentName
+$sourceSkillsRoot = Join-Path $SourceRepoPath ".github/skills"
+$targetSkillsRoot = Join-Path $TargetRepoPath ".github/skills"
+$commandFile = Join-Path $TargetRepoPath "SCOUT-AUDIT-COMMAND.txt"
 
-$targetAgentsDir = Join-Path $TargetRepoPath ".github\agents"
-Ensure-Directory -PathValue $targetAgentsDir
-Copy-Item -LiteralPath $sourceAgent -Destination (Join-Path $targetAgentsDir "ai-efficiency-performance-auditor.agent.md") -Force
-Write-Host "Copied agent definition to $targetAgentsDir"
-
-$skillsToCopy = New-Object System.Collections.Generic.List[string]
-if ($IncludeServicePerformanceSkill) {
-    $skillsToCopy.Add("service-performance-review")
+# Preflight every requested input and output before creating install paths.
+Assert-DirectoryPath (Join-Path $SourceRepoPath ".github")
+Assert-DirectoryPath $sourceAgentsDir
+$agentItem = Get-Item -LiteralPath $sourceAgent -Force -ErrorAction SilentlyContinue
+if ($null -eq $agentItem -or $agentItem.PSIsContainer -or ($agentItem.Attributes -band [IO.FileAttributes]::ReparsePoint)) {
+    throw "Agent definition must be a regular file in the source repo: $sourceAgent"
 }
-foreach ($skill in $Skills) {
-    if (-not [string]::IsNullOrWhiteSpace($skill)) {
-        $skillsToCopy.Add($skill.Trim())
+Assert-DirectoryPath (Join-Path $TargetRepoPath ".github")
+Assert-DirectoryPath $targetAgentsDir
+Assert-NewInstallPath $targetAgent
+Assert-NewInstallPath $commandFile
+if ($skillsToCopy.Count -gt 0) {
+    Assert-DirectoryPath $sourceSkillsRoot
+    Assert-DirectoryPath $targetSkillsRoot
+    foreach ($skillName in $skillsToCopy) {
+        $sourceSkill = Join-Path $sourceSkillsRoot $skillName
+        Assert-DirectoryPath $sourceSkill
+        if (-not (Test-Path -LiteralPath $sourceSkill -PathType Container)) {
+            throw "Requested skill not found in source repo: $sourceSkill"
+        }
+        foreach ($entry in Get-ChildItem -LiteralPath $sourceSkill -Force -Recurse) {
+            if ($entry.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+                throw "Skill contains a link: $($entry.FullName)"
+            }
+        }
+        Assert-NewInstallPath (Join-Path $targetSkillsRoot $skillName)
     }
 }
 
-$skillsToCopy = $skillsToCopy | Select-Object -Unique
+$scoutCommand = Compose-ScoutAuditCommand -AuditTarget $resolvedTargetForAudit -Focus $AuditFocus -EmailRecipient $AuditEmailRecipient -IncludeTeams $IncludeTeamsNotification
+Ensure-Directory $targetAgentsDir
+[IO.File]::Copy($sourceAgent, $targetAgent)
+Write-Host "Copied agent definition to $targetAgentsDir"
 if ($skillsToCopy.Count -gt 0) {
-    $targetSkillsRoot = Join-Path $TargetRepoPath ".github\skills"
-    Ensure-Directory -PathValue $targetSkillsRoot
+    Ensure-Directory $targetSkillsRoot
     foreach ($skillName in $skillsToCopy) {
-        $sourceSkill = Join-Path $SourceRepoPath ".github\skills\$skillName"
-        if (-not (Test-Path -LiteralPath $sourceSkill)) {
-            throw "Requested skill not found in source repo: $sourceSkill"
-        }
+        $sourceSkill = Join-Path $sourceSkillsRoot $skillName
         $targetSkill = Join-Path $targetSkillsRoot $skillName
-        Copy-DirectoryTree -Source $sourceSkill -Destination $targetSkill
+        New-Item -ItemType Directory -Path $targetSkill | Out-Null
+        Get-ChildItem -LiteralPath $sourceSkill -Force | Copy-Item -Destination $targetSkill -Recurse -Force
         Write-Host "Copied skill: $skillName"
     }
 }
-
+$stream = [IO.File]::Open($commandFile, [IO.FileMode]::CreateNew, [IO.FileAccess]::Write)
+try {
+    $bytes = [Text.Encoding]::UTF8.GetBytes($scoutCommand + [Environment]::NewLine)
+    $stream.Write($bytes, 0, $bytes.Length)
+}
+finally {
+    $stream.Dispose()
+}
 Write-Host ""
 Write-Host "Bootstrap complete."
 Write-Host "Target repo: $TargetRepoPath"
-$scoutCommand = Compose-ScoutAuditCommand -AuditTarget $resolvedTargetForAudit -Focus $AuditFocus -EmailRecipient $AuditEmailRecipient -IncludeTeams $IncludeTeamsNotification
-$commandFile = Join-Path $TargetRepoPath "SCOUT-AUDIT-COMMAND.txt"
-Set-Content -LiteralPath $commandFile -Value $scoutCommand -Encoding UTF8
 Write-Host "Scout command saved: $commandFile"
 Write-Host ""
 Write-Host "Run this in Scout:"

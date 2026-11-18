@@ -10,8 +10,8 @@ install the agent, review one flow, then add optional modules when needed.
 
 [Repository](https://github.com/fbabaei/ai-efficiency-performance-auditor)
 
-A custom agent for GitHub Copilot in VS Code with read-only application access
-and report-only file creation. Audit AI application source code and existing
+A custom agent for GitHub Copilot in VS Code that follows a read-only application
+and report-only write policy. Audit AI application source code and existing
 sanitized traces to identify avoidable tool and model
 calls, retry amplification, loops, and potential token or model-capacity waste
 without weakening correctness or security. Explicitly requested optional reviews
@@ -104,6 +104,14 @@ The script writes a ready-to-run Scout command to:
 
 and prints the same command in the terminal.
 
+Both scripts accept local Git checkout roots, including linked worktrees.
+Pass skills by folder name only (lowercase ASCII letters, digits and hyphens,
+starting with a letter or digit). The installer rejects symlinks in managed paths.
+It checks all requested sources and output paths before copying any install
+files. If the agent, a requested skill, or `SCOUT-AUDIT-COMMAND.txt` already
+exists, it stops without overwriting anything. To reinstall, review and move the
+conflicting items aside yourself before rerunning; there is no force option.
+
 ### Direct PowerShell usage
 
 Use this script to copy the auditor agent (and optional skills) into a target application repo:
@@ -114,10 +122,10 @@ pwsh -NoProfile -File .\scripts\bootstrap-auditor.ps1 `
   -IncludeServicePerformanceSkill
 ```
 
-Optional: copy additional skills by name:
+Optional: from PowerShell, copy additional skills by name:
 
 ```powershell
-pwsh -NoProfile -File .\scripts\bootstrap-auditor.ps1 `
+& .\scripts\bootstrap-auditor.ps1 `
   -TargetRepoPath "C:\path\to\app-repo" `
   -Skills "context-retrieval-review","orchestration-efficiency-review"
 ```
@@ -279,10 +287,12 @@ for the workflow, counting rules, evidence requirements, and limitations.
 ## Permissions and dependencies
 
 The definition requests `read`, `search`, `edit`, `ask_user`, and
-`appmod-preview-markdown`, with no subagents. Editing is instructed to create
-new detailed audit and Executive Summary files only; existing files and application code remain read-only.
-This is an instruction boundary, not a filesystem sandbox: the `edit` tool group
-itself is broader. Review tool approvals and verify the host's effective tools.
+`appmod-preview-markdown`, with no subagents. Automatic report saving uses `edit`,
+a general editing capability that this manifest does not scope by path. The
+agent is instructed to create only new detailed audit and Executive Summary files
+and to leave application code and existing files untouched. That policy is
+instruction-level unless the host enforces write scopes. Review tool approvals
+and verify the host's effective tools.
 `ask_user` and `appmod-preview-markdown` are host-specific tool names; verify
 they resolve in your client and map them to equivalent local interaction/Markdown
 preview tools when necessary, without granting command or general external-service

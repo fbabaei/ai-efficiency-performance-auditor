@@ -3,7 +3,7 @@
 **Developer and author:** Fereydoun Babaei.
 
 The [AI Efficiency & Performance Auditor](../.github/agents/ai-efficiency-performance-auditor.agent.md)
-is a reviewer with read-only application access and report-only file creation.
+is a reviewer instructed to read application files and write only new reports.
 It examines source code and existing
 sanitized traces to answer:
 
@@ -545,9 +545,10 @@ The agent exposes `read`, `search`, `edit`, `ask_user`, and
 `appmod-preview-markdown`, with no subagents. Its sole write exception is creating
 new Markdown detailed audit and Executive Summary files; summary preview requires explicit user consent. These
 host-specific interaction/preview names must resolve to compatible local tools.
-If unavailable, it uses Chat and manual save/preview instructions. The `edit`
-group is not path-restricted by the host; report-only writes are an instruction
-boundary, not a sandbox. Its instructions
+If unavailable, it uses Chat and manual save/preview instructions. Automatic
+report saving uses `edit`, a general capability not scoped by path in this
+manifest. Report-only writes are an instruction boundary unless the host enforces
+write scopes. The agent's instructions
 prohibit:
 
 - Editing application code, configuration, evidence, or existing files.
