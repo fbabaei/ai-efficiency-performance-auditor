@@ -76,6 +76,49 @@ class BootstrapTests:
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn(message, result.stderr)
 
+    def standalone_bootstrap(self, answers):
+        source_url = "https://github.com/fbabaei/ai-efficiency-performance-auditor.git"
+        home = self.root / "home"
+        home.mkdir(exist_ok=True)
+        downloads = self.root / "downloads"
+        downloads.mkdir(exist_ok=True)
+        suffix = "sh" if self.shell_type == "bash" else "ps1"
+        launcher = downloads / f"bootstrap-auditor.{suffix}"
+        shutil.copyfile(SCRIPTS / launcher.name, launcher)
+        args = [launcher.as_posix()] if suffix == "sh" else ["-NoProfile", "-File", str(launcher)]
+        return subprocess.run(
+            [self.shell, *args], input=answers, capture_output=True, text=True, timeout=30,
+            env={
+                **os.environ,
+                "HOME": str(home), "USERPROFILE": str(home),
+                "GIT_CONFIG_COUNT": "1",
+                "GIT_CONFIG_KEY_0": f"url.{self.source.as_uri()}.insteadOf",
+                "GIT_CONFIG_VALUE_0": source_url,
+            },
+        )
+
+    def test_standalone_clones_and_reuses_auditor_checkout(self):
+        for relative in ("scripts/audit-workflows.txt", "docs/usage-prompts.md"):
+            (self.source / relative).parent.mkdir(exist_ok=True)
+            shutil.copyfile(ROOT / relative, self.source / relative)
+        write(self.source / SKILLS / "observability-readiness" / "SKILL.md", "observability")
+        git(self.source, "add", ".")
+        git(self.source, "-c", "user.name=Bootstrap Test", "-c", "user.email=test@example.invalid",
+            "-c", "commit.gpgsign=false", "commit", "-qm", "Fixture")
+
+        result = self.standalone_bootstrap(f"2\n{self.target}\naudit-observability\n\n\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        clone = self.root / "home/workspace/ai-efficiency-performance-auditor"
+        self.assertTrue((clone / ".git").is_dir())
+        self.assertTrue((self.target / SKILLS / "observability-readiness" / "SKILL.md").is_file())
+        self.assertIn("Explicitly use observability-readiness", (self.target / SCOUT).read_text(encoding="utf-8"))
+
+        self.source.rename(self.root / "offline-source")
+        result = self.standalone_bootstrap(f"2\n{self.target}\n0\n")
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("Reusing auditor checkout:", result.stdout)
+        self.assertIn("Setup cancelled.", result.stdout)
+
     def assert_no_install(self):
         self.assertFalse((self.target / ".github").exists())
         self.assertFalse((self.target / SCOUT).exists())

@@ -2,6 +2,8 @@
 
 ## 0.5.0 - Unreleased
 
+- Enable standalone PowerShell and Bash bootstrap scripts to clone or reuse
+  the auditor checkout before opening the interactive setup menu.
 - Add a goal-based interactive bootstrap menu for all 15 audit workflows.
   Install the chosen skills and draft a scoped Scout prompt from the shared
   catalog, with optional email and Teams delivery instructions.

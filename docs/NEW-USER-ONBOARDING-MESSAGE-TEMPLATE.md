@@ -7,16 +7,18 @@ Hi <Name>,
 
 Welcome! Here is the fastest way to set up and run the AI Efficiency & Performance Auditor with Scout.
 
-1) Clone the repository
-https://github.com/fbabaei/ai-efficiency-performance-auditor
+1) Save the trusted bootstrap script for your platform. Git is required.
 
-2) Open a terminal in that repo and run interactive setup
+2) Open a terminal in the folder where you saved it:
 
-Windows
-.\scripts\bootstrap-auditor.cmd -Interactive
+Windows (PowerShell 7)
+pwsh -NoProfile -File .\bootstrap-auditor.ps1
 
-Linux/macOS
-./scripts/bootstrap-auditor.sh --interactive
+Linux/macOS (Bash)
+bash ./bootstrap-auditor.sh
+
+The script clones the auditor repo if it is missing, or reuses the existing
+matching checkout. You do not need to clone the auditor manually.
 
 3) Complete the prompts
 - target repo URL/path

@@ -74,6 +74,25 @@ correctness or security.
 
 ### One-command bootstrap for new users (auto shell)
 
+For Teams or email onboarding, share **`scripts/bootstrap-auditor.ps1`** on
+Windows or **`scripts/bootstrap-auditor.sh`** on Linux/macOS. From the folder
+where the file was saved, run the matching command. Git and PowerShell 7 or
+Bash are required.
+
+```powershell
+pwsh -NoProfile -File .\bootstrap-auditor.ps1
+```
+
+```bash
+bash ./bootstrap-auditor.sh
+```
+
+The standalone script starts interactive setup, cloning the auditor into
+`~/workspace/ai-efficiency-performance-auditor` if needed or reusing the matching
+checkout without updating it. Use a copy from a trusted source and follow your
+organization's script execution policy. The `.cmd` wrapper is not standalone;
+use it from a full checkout.
+
 Windows launcher (auto-detects PowerShell first, then Bash):
 
 ```bat

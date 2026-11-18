@@ -30,6 +30,7 @@ Options:
   --include-service-performance-skill
                                 Also copy service-performance-review skill
   --interactive                 Choose an audit workflow and generate a Scout prompt
+                                Default when launched standalone without a target
   --audit-focus <text>          Focus text for generated Scout command
   --audit-email-recipient <mail>
                                 Optional email recipient for generated Scout command
@@ -157,9 +158,34 @@ ensure_repo() {
   git clone -- "$repo_url" "$local_path"
 }
 
+has_workflow_catalog() {
+  [[ -f "$1/scripts/audit-workflows.txt" && -f "$1/docs/usage-prompts.md" ]]
+}
+
+initialize_interactive_source() {
+  local path="$1" url="$2" origin
+  check_directory "$path"
+  if [[ ! -d "$path" ]]; then
+    ensure_repo "$path" "$url"
+    return
+  fi
+  is_repo_root "$path" || fail "Source path is not a git repository: $path"
+  if ! origin="$(git -C "$path" config --local --get remote.origin.url)" || [[ "$origin" != "$url" ]]; then
+    fail "Existing auditor checkout does not match the requested source URL: $path. Pass --source-repo-path to select a trusted checkout explicitly."
+  fi
+  echo "Reusing auditor checkout: $path"
+}
+
 working_root="${HOME}/workspace"
+script_dir="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+launcher_root="$(dirname -- "$script_dir")"
+bundled=0
+if [[ "${script_dir##*/}" == scripts ]] && is_repo_root "$launcher_root" && has_workflow_catalog "$launcher_root"; then
+  bundled=1
+fi
 
 if [[ -z "$target_repo_path" && -z "$target_repo_url" ]]; then
+  if [[ "$bundled" -eq 0 ]]; then interactive=1; fi
   if [[ "$interactive" -ne 1 ]]; then
     echo "Provide --target-repo-path or --target-repo-url, or run with --interactive." >&2
     exit 1
@@ -167,7 +193,22 @@ if [[ -z "$target_repo_path" && -z "$target_repo_url" ]]; then
 fi
 
 if [[ "$interactive" -eq 1 ]]; then
-  script_dir="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+  if [[ -z "$source_repo_path" ]]; then
+    if [[ "$bundled" -eq 1 && "$source_url_provided" -eq 0 ]]; then
+      source_repo_path="$launcher_root"
+    else
+      source_name="$(resolve_repo_name "$source_repo_url")"
+      source_repo_path="${working_root}/${source_name}"
+      initialize_interactive_source "$source_repo_path" "$source_repo_url"
+    fi
+  elif ! is_repo_root "$source_repo_path"; then
+    fail "Source path is not a git repository: $source_repo_path"
+  fi
+  catalog_root="$source_repo_path"
+  if [[ "$bundled" -eq 1 ]]; then catalog_root="$launcher_root"; fi
+  has_workflow_catalog "$catalog_root" ||
+    fail "Auditor workflow catalog missing in $catalog_root. Update the auditor checkout or select a current checkout with --source-repo-path."
+
   if [[ -z "$target_repo_path" && -z "$target_repo_url" ]]; then
     echo "Choose target mode:"
     echo "  1) GitHub repository URL"
@@ -183,6 +224,9 @@ if [[ "$interactive" -eq 1 ]]; then
     fi
   fi
 
+  if [[ -z "$target_repo_path" && -z "$target_repo_url" ]]; then
+    fail "A target repository URL or local path is required."
+  fi
   workflow_ids=() workflow_titles=() workflow_skills=()
   echo "What would you like to do?"
   while IFS='|' read -r id title required; do
@@ -191,7 +235,7 @@ if [[ "$interactive" -eq 1 ]]; then
     workflow_titles+=("$title")
     workflow_skills+=("$required")
     printf '  %s) %s [%s]\n' "${#workflow_ids[@]}" "$title" "$id"
-  done < "$script_dir/audit-workflows.txt"
+  done < "$catalog_root/scripts/audit-workflows.txt"
   echo "  0) Cancel"
   selected=""
   while [[ -z "$selected" ]]; do
@@ -223,7 +267,7 @@ if [[ "$interactive" -eq 1 ]]; then
     !opened && /^```text$/ { opened = 1; blocks++; next }
     opened { print; if ($0 ~ /[^ \t]/) nonempty = 1 }
     END { if (sections != 1 || blocks != 1 || opened || invalid || !nonempty) exit 1 }
-  ' "$script_dir/../docs/usage-prompts.md")" || fail "Expected one nonempty prompt for $title."
+  ' "$catalog_root/docs/usage-prompts.md")" || fail "Expected one nonempty prompt for $title."
   if [[ -n "$required" ]]; then
     IFS=',' read -r -a required_skills < <(printf '%s\n' "$required")
     skills+=("${required_skills[@]}")
@@ -239,9 +283,6 @@ if [[ "$interactive" -eq 1 ]]; then
     include_teams_notification=0
     read_prompt "Include a Teams completion notification? (y/N)" answer
     case "$answer" in [yY]|[yY][eE][sS]) include_teams_notification=1 ;; esac
-  fi
-  if [[ -z "$source_repo_path" && "$source_url_provided" -eq 0 ]]; then
-    source_repo_path="$(dirname -- "$script_dir")"
   fi
 fi
 

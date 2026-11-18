@@ -81,6 +81,25 @@ function Ensure-Repo([string]$LocalPath, [string]$RepoUrl) {
     if ($LASTEXITCODE -ne 0) { throw "Git clone failed: $LocalPath" }
 }
 
+function Test-WorkflowCatalog([string]$Root) {
+    return (Test-Path -LiteralPath (Join-Path $Root "scripts\audit-workflows.txt") -PathType Leaf) -and
+        (Test-Path -LiteralPath (Join-Path $Root "docs\usage-prompts.md") -PathType Leaf)
+}
+
+function Initialize-InteractiveSource([string]$LocalPath, [string]$RepoUrl) {
+    Assert-DirectoryPath $LocalPath
+    if (-not (Test-Path -LiteralPath $LocalPath)) {
+        Ensure-Repo -LocalPath $LocalPath -RepoUrl $RepoUrl
+        return
+    }
+    if (-not (Test-RepoRoot $LocalPath)) { throw "Source path is not a git repository: $LocalPath" }
+    $origin = & git -C $LocalPath config --local --get remote.origin.url
+    if ($LASTEXITCODE -ne 0 -or $origin -cne $RepoUrl) {
+        throw "Existing auditor checkout does not match the requested source URL: $LocalPath. Pass -SourceRepoPath to select a trusted checkout explicitly."
+    }
+    Write-Host "Reusing auditor checkout: $LocalPath"
+}
+
 function Compose-ScoutAuditCommand(
     [string]$AuditTarget,
     [string]$Focus,
@@ -99,8 +118,8 @@ function Compose-ScoutAuditCommand(
     return $command
 }
 
-function Select-AuditWorkflow {
-    $workflows = @(Get-Content -LiteralPath (Join-Path $PSScriptRoot "audit-workflows.txt") |
+function Select-AuditWorkflow([string]$CatalogRoot) {
+    $workflows = @(Get-Content -LiteralPath (Join-Path $CatalogRoot "scripts\audit-workflows.txt") |
         ForEach-Object {
             $fields = $_.Split("|")
             [pscustomobject]@{ Id = $fields[0]; Title = $fields[1]; Skills = $fields[2] }
@@ -126,7 +145,7 @@ function Select-AuditWorkflow {
     }
 }
 
-function Run-InteractivePrompts {
+function Run-InteractivePrompts([string]$CatalogRoot) {
     if ([string]::IsNullOrWhiteSpace($script:TargetRepoPath) -and [string]::IsNullOrWhiteSpace($script:TargetRepoUrl)) {
         Write-Host "Choose target mode:"
         Write-Host "  1) GitHub repository URL"
@@ -143,8 +162,11 @@ function Run-InteractivePrompts {
         }
     }
 
-    $workflow = Select-AuditWorkflow
-    $catalog = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot "../docs/usage-prompts.md")
+    if ([string]::IsNullOrWhiteSpace($script:TargetRepoPath) -and [string]::IsNullOrWhiteSpace($script:TargetRepoUrl)) {
+        throw "A target repository URL or local path is required."
+    }
+    $workflow = Select-AuditWorkflow -CatalogRoot $CatalogRoot
+    $catalog = Get-Content -Raw -LiteralPath (Join-Path $CatalogRoot "docs\usage-prompts.md")
     $sections = @($catalog -csplit '(?m)^## ' | Where-Object {
         ($_ -split '\r?\n', 2)[0] -ceq $workflow.Title
     })
@@ -174,18 +196,36 @@ function Run-InteractivePrompts {
 }
 
 Assert-GitAvailable
+$workingRoot = Join-Path $HOME "workspace"
+$launcherRoot = Split-Path -Parent $PSScriptRoot
+$bundled = (Split-Path -Leaf $PSScriptRoot) -eq "scripts" -and
+    $launcherRoot -and (Test-RepoRoot $launcherRoot) -and (Test-WorkflowCatalog $launcherRoot)
 
 if ([string]::IsNullOrWhiteSpace($TargetRepoPath) -and [string]::IsNullOrWhiteSpace($TargetRepoUrl)) {
+    if (-not $bundled) { $Interactive = $true }
     if (-not $Interactive) {
         throw "Provide -TargetRepoPath or -TargetRepoUrl, or run with -Interactive."
     }
 }
 
 if ($Interactive) {
-    Run-InteractivePrompts
-    if (-not $SourceRepoPath -and -not $ProvidedSourceUrl) {
-        $SourceRepoPath = Split-Path -Parent $PSScriptRoot
+    if (-not $SourceRepoPath) {
+        if ($bundled -and -not $ProvidedSourceUrl) {
+            $SourceRepoPath = $launcherRoot
+        }
+        else {
+            $SourceRepoPath = Join-Path $workingRoot (Resolve-RepoName $SourceRepoUrl)
+            Initialize-InteractiveSource -LocalPath $SourceRepoPath -RepoUrl $SourceRepoUrl
+        }
     }
+    elseif (-not (Test-RepoRoot $SourceRepoPath)) {
+        throw "Source path is not a git repository: $SourceRepoPath"
+    }
+    $catalogRoot = if ($bundled) { $launcherRoot } else { $SourceRepoPath }
+    if (-not (Test-WorkflowCatalog $catalogRoot)) {
+        throw "Auditor workflow catalog missing in $catalogRoot. Update the auditor checkout or select a current checkout with -SourceRepoPath."
+    }
+    Run-InteractivePrompts -CatalogRoot $catalogRoot
 }
 
 $skillsToCopy = @(
@@ -198,8 +238,6 @@ $skillsToCopy = @(
     }
 )
 $skillsToCopy = @($skillsToCopy | Select-Object -Unique)
-
-$workingRoot = Join-Path $HOME "workspace"
 
 $resolvedTargetForAudit = ""
 if ([string]::IsNullOrWhiteSpace($TargetRepoPath)) {
